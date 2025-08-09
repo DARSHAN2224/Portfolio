@@ -1,0 +1,40 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EC4899;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background with gradient -->
+  <rect width="32" height="32" rx="8" fill="url(#grad1)"/>
+  
+  <!-- Modern "D" letter -->
+  <path d="M8 8C8 6.89543 8.89543 6 10 6H18C20.2091 6 22 7.79086 22 10V22C22 24.2091 20.2091 26 18 26H10C8.89543 26 8 25.1046 8 24V8Z" 
+        fill="none" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+  
+  <!-- Inner "D" curve -->
+  <path d="M12 10C12 9.44772 12.4477 9 13 9H17C18.1046 9 19 9.89543 19 11V21C19 22.1046 18.1046 23 17 23H13C12.4477 23 12 22.5523 12 22V10Z" 
+        fill="white" opacity="0.9"/>
+  
+  <!-- Tech elements -->
+  <circle cx="24" cy="8" r="2" fill="url(#grad2)" opacity="0.8"/>
+  <circle cx="26" cy="24" r="1.5" fill="url(#grad2)" opacity="0.6"/>
+  <circle cx="6" cy="26" r="1" fill="url(#grad2)" opacity="0.7"/>
+  
+  <!-- Connection lines -->
+  <path d="M24 8L26 24" stroke="url(#grad2)" stroke-width="1" opacity="0.5"/>
+  <path d="M6 26L24 8" stroke="url(#grad2)" stroke-width="1" opacity="0.3"/>
+</svg>
