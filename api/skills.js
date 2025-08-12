@@ -1,11 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 
-// Helper function to get project root
-const getProjectRoot = () => {
-  return process.env.VERCEL ? process.cwd() : __dirname;
-};
-
 // Helper function to read JSON files
 const readJsonFile = (filePath) => {
   try {
@@ -43,9 +38,21 @@ export default function handler(req, res) {
   // GET /api/skills
   if (req.method === 'GET') {
     try {
-      const skillsPath = path.join(getProjectRoot(), 'data', 'skills.json');
-      const skills = readJsonFile(skillsPath);
-      res.status(200).json(skills);
+      // Try to read from the source data file first, then from dist
+      let skillsPath = path.join(process.cwd(), 'data', 'skills.json');
+      
+      if (!fs.existsSync(skillsPath)) {
+        // Try dist/data path for Vercel
+        skillsPath = path.join(process.cwd(), 'dist', 'data', 'skills.json');
+      }
+      
+      if (fs.existsSync(skillsPath)) {
+        const skills = readJsonFile(skillsPath);
+        res.status(200).json(skills);
+      } else {
+        // If file doesn't exist, return empty array
+        res.status(200).json([]);
+      }
     } catch (error) {
       console.error('Error fetching skills:', error);
       res.status(500).json({ error: 'Failed to fetch skills' });
@@ -56,8 +63,13 @@ export default function handler(req, res) {
   // POST /api/skills
   if (req.method === 'POST') {
     try {
-      const skillsPath = path.join(getProjectRoot(), 'data', 'skills.json');
-      const skills = readJsonFile(skillsPath);
+      const skillsPath = path.join(process.cwd(), 'data', 'skills.json');
+      let skills = [];
+      
+      // Try to read existing data
+      if (fs.existsSync(skillsPath)) {
+        skills = readJsonFile(skillsPath);
+      }
       
       const newSkill = req.body;
       skills.push(newSkill);

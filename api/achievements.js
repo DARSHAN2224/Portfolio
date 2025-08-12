@@ -1,11 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 
-// Helper function to get project root
-const getProjectRoot = () => {
-  return process.env.VERCEL ? process.cwd() : __dirname;
-};
-
 // Helper function to read JSON files
 const readJsonFile = (filePath) => {
   try {
@@ -43,9 +38,21 @@ export default function handler(req, res) {
   // GET /api/achievements
   if (req.method === 'GET') {
     try {
-      const achievementsPath = path.join(getProjectRoot(), 'data', 'achievements.json');
-      const achievements = readJsonFile(achievementsPath);
-      res.status(200).json(achievements);
+      // Try to read from the source data file first, then from dist
+      let achievementsPath = path.join(process.cwd(), 'data', 'achievements.json');
+      
+      if (!fs.existsSync(achievementsPath)) {
+        // Try dist/data path for Vercel
+        achievementsPath = path.join(process.cwd(), 'dist', 'data', 'achievements.json');
+      }
+      
+      if (fs.existsSync(achievementsPath)) {
+        const achievements = readJsonFile(achievementsPath);
+        res.status(200).json(achievements);
+      } else {
+        // If file doesn't exist, return empty array
+        res.status(200).json([]);
+      }
     } catch (error) {
       console.error('Error fetching achievements:', error);
       res.status(500).json({ error: 'Failed to fetch achievements' });
@@ -56,8 +63,13 @@ export default function handler(req, res) {
   // POST /api/achievements
   if (req.method === 'POST') {
     try {
-      const achievementsPath = path.join(getProjectRoot(), 'data', 'achievements.json');
-      const achievements = readJsonFile(achievementsPath);
+      const achievementsPath = path.join(process.cwd(), 'data', 'achievements.json');
+      let achievements = [];
+      
+      // Try to read existing data
+      if (fs.existsSync(achievementsPath)) {
+        achievements = readJsonFile(achievementsPath);
+      }
       
       const newAchievement = req.body;
       achievements.push(newAchievement);

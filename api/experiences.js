@@ -1,11 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 
-// Helper function to get project root
-const getProjectRoot = () => {
-  return process.env.VERCEL ? process.cwd() : __dirname;
-};
-
 // Helper function to read JSON files
 const readJsonFile = (filePath) => {
   try {
@@ -43,9 +38,21 @@ export default function handler(req, res) {
   // GET /api/experiences
   if (req.method === 'GET') {
     try {
-      const experiencesPath = path.join(getProjectRoot(), 'data', 'experiences.json');
-      const experiences = readJsonFile(experiencesPath);
-      res.status(200).json(experiences);
+      // Try to read from the source data file first, then from dist
+      let experiencesPath = path.join(process.cwd(), 'data', 'experiences.json');
+      
+      if (!fs.existsSync(experiencesPath)) {
+        // Try dist/data path for Vercel
+        experiencesPath = path.join(process.cwd(), 'dist', 'data', 'experiences.json');
+      }
+      
+      if (fs.existsSync(experiencesPath)) {
+        const experiences = readJsonFile(experiencesPath);
+        res.status(200).json(experiences);
+      } else {
+        // If file doesn't exist, return empty array
+        res.status(200).json([]);
+      }
     } catch (error) {
       console.error('Error fetching experiences:', error);
       res.status(500).json({ error: 'Failed to fetch experiences' });
@@ -56,8 +63,13 @@ export default function handler(req, res) {
   // POST /api/experiences
   if (req.method === 'POST') {
     try {
-      const experiencesPath = path.join(getProjectRoot(), 'data', 'experiences.json');
-      const experiences = readJsonFile(experiencesPath);
+      const experiencesPath = path.join(process.cwd(), 'data', 'experiences.json');
+      let experiences = [];
+      
+      // Try to read existing data
+      if (fs.existsSync(experiencesPath)) {
+        experiences = readJsonFile(experiencesPath);
+      }
       
       const newExperience = req.body;
       experiences.push(newExperience);

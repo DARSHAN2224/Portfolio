@@ -1,0 +1,55 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build"
+    },
+    {
+      "src": "api/projects.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/experiences.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/skills.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/achievements.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/test.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/projects(.*)",
+      "dest": "/api/projects.js"
+    },
+    {
+      "src": "/api/experiences",
+      "dest": "/api/experiences.js"
+    },
+    {
+      "src": "/api/skills",
+      "dest": "/api/skills.js"
+    },
+    {
+      "src": "/api/achievements",
+      "dest": "/api/achievements.js"
+    },
+    {
+      "src": "/api/test",
+      "dest": "/api/test.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}

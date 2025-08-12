@@ -1,11 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 
-// Helper function to get project root
-const getProjectRoot = () => {
-  return process.env.VERCEL ? process.cwd() : __dirname;
-};
-
 // Helper function to read JSON files
 const readJsonFile = (filePath) => {
   try {
@@ -40,7 +35,7 @@ export default function handler(req, res) {
     return;
   }
 
-  // GET /api/projects
+  // GET /api/projects or /api/projects/[id]
   if (req.method === 'GET') {
     try {
       // The data file is in dist/data/projects.json
@@ -49,7 +44,22 @@ export default function handler(req, res) {
       if (fs.existsSync(projectsPath)) {
         const projects = readJsonFile(projectsPath);
         console.log(`Found ${projects.length} projects at: ${projectsPath}`);
-        res.status(200).json(projects);
+        
+        // Check if this is a request for a specific project
+        const urlParts = req.url.split('/');
+        if (urlParts.length > 3 && urlParts[3]) {
+          const projectId = urlParts[3];
+          const project = projects.find(p => p.id === projectId);
+          
+          if (project) {
+            res.status(200).json(project);
+          } else {
+            res.status(404).json({ error: 'Project not found' });
+          }
+        } else {
+          // Return all projects
+          res.status(200).json(projects);
+        }
       } else {
         console.error(`Projects file not found at: ${projectsPath}`);
         res.status(500).json({ 
@@ -73,7 +83,12 @@ export default function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const projectsPath = path.join(process.cwd(), 'dist', 'data', 'projects.json');
-      const projects = readJsonFile(projectsPath);
+      let projects = [];
+      
+      // Try to read existing data
+      if (fs.existsSync(projectsPath)) {
+        projects = readJsonFile(projectsPath);
+      }
       
       const newProject = req.body;
       projects.push(newProject);
