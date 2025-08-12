@@ -2,30 +2,27 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/[...all].js",
-      "use": "@vercel/node"
+      "src": "vite.config.js",
+      "use": "@vercel/static-build"
     },
     {
-      "src": "api/test.js",
+      "src": "api/**/*.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/test",
-      "dest": "/api/test.js"
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/[...all].js"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ],
   "functions": {
-    "api/[...all].js": {
+    "api/**/*.js": {
       "maxDuration": 30
-    },
-    "api/test.js": {
-      "maxDuration": 10
     }
   }
 }

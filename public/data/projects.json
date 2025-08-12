@@ -13,12 +13,24 @@
     "githubUrl": "https://github.com/darshan/healthcare-ai",
     "demoUrl": "https://healthcare-ai-demo.com",
     "images": [
-      "/images/projects/project-1/ai-dashboard.svg",
-      "/images/projects/project-1/symptom-analyzer.svg",
-      "/images/projects/project-1/appointment-scheduler.svg",
-      "/images/projects/project-1/patient-interface.svg",
-      "/images/projects/project-1/healthcare-mobile.svg",
-      "/images/projects/project-1/cool-geometric-triangular-figure-neon-laser-light-great-backgrounds-wallpapers.svg"
+      {
+        "url": "/images/projects/project-1/ai-dashboard.svg"
+      },
+      {
+        "url": "/images/projects/project-1/symptom-analyzer.svg"
+      },
+      {
+        "url": "/images/projects/project-1/appointment-scheduler.svg"
+      },
+      {
+        "url": "/images/projects/project-1/patient-interface.svg"
+      },
+      {
+        "url": "/images/projects/project-1/healthcare-mobile.svg"
+      },
+      {
+        "url": "/images/projects/project-1/cool-geometric-triangular-figure-neon-laser-light-great-backgrounds-wallpapers.svg"
+      }
     ],
     "showDemoButton": false,
     "showGithubButton": false,
@@ -38,12 +50,28 @@
     "githubUrl": "https://github.com/darshan/smart-home-iot",
     "demoUrl": "https://smart-home-demo.com",
     "images": [
-      "/images/projects/project-2/iot-dashboard.svg",
-      "/images/projects/project-2/smart-lighting.svg",
-      "/images/projects/project-2/temperature-control.svg",
-      "/images/projects/project-2/security-system.svg",
-      "/images/projects/project-2/mobile-app.svg",
-      "/images/projects/project-2/hardware-setup.svg"
+      {
+        "url": "/images/projects/project-2/iot-dashboard.svg"
+      },
+      {
+        "url": "/images/projects/project-2/smart-lighting.svg"
+      },
+      {
+        "url": "/images/projects/project-2/temperature-control.svg"
+      },
+      {
+        "url": "/images/projects/project-2/security-system.svg"
+      },
+      {
+        "url": "/images/projects/project-2/mobile-app.svg"
+      },
+      {
+        "url": "/images/projects/project-2/hardware-setup.svg"
+      },
+      {
+        "url": "/images/projects/project-2/cool-geometric-triangular-figure-neon-laser-light-great-backgrounds-wallpapers.jpg",
+        "alt": ""
+      }
     ],
     "showDemoButton": false,
     "showGithubButton": false,
@@ -63,15 +91,50 @@
     "githubUrl": "https://github.com/darshan/ecommerce-platform",
     "demoUrl": "https://ecommerce-demo.com",
     "images": [
-      "/images/projects/project-3/ecommerce-homepage.svg",
-      "/images/projects/project-3/product-catalog.svg",
-      "/images/projects/project-3/shopping-cart.svg",
-      "/images/projects/project-3/checkout-process.svg",
-      "/images/projects/project-3/admin-dashboard.svg",
-      "/images/projects/project-3/inventory-management.svg"
+      {
+        "url": "/images/projects/project-3/ecommerce-homepage.svg"
+      },
+      {
+        "url": "/images/projects/project-3/product-catalog.svg"
+      },
+      {
+        "url": "/images/projects/project-3/shopping-cart.svg"
+      },
+      {
+        "url": "/images/projects/project-3/checkout-process.svg"
+      },
+      {
+        "url": "/images/projects/project-3/admin-dashboard.svg"
+      },
+      {
+        "url": "/images/projects/project-3/inventory-management.svg"
+      },
+      {
+        "url": "/images/projects/project-3/cool-geometric-triangular-figure-neon-laser-light-great-backgrounds-wallpapers.jpg",
+        "alt": ""
+      }
     ],
     "showDemoButton": false,
     "showGithubButton": false,
     "createdAt": "2024-03-10"
+  },
+  {
+    "id": "im4e0brdq",
+    "title": "gggg",
+    "impactStatement": "asdasdasd",
+    "tags": [
+      "react"
+    ],
+    "githubUrl": "",
+    "demoUrl": "",
+    "images": [
+      {
+        "url": "/images/projects/im4e0brdq/cool-geometric-triangular-figure-neon-laser-light-great-backgrounds-wallpapers.jpg",
+        "alt": "cool-geometric-triangular-figure-neon-laser-light-great-backgrounds-wallpapers.jpg"
+      }
+    ],
+    "showDemoButton": false,
+    "showGithubButton": false,
+    "createdAt": "2025-08-12"
   }
 ]
