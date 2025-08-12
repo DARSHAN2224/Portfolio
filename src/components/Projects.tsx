@@ -13,7 +13,7 @@ interface Project {
   tags: string[];
   githubUrl: string;
   demoUrl?: string;
-  images: string[];
+  images: Array<{ url: string; alt?: string }>;
   showDemoButton?: boolean;
   showGithubButton?: boolean;
   createdAt: string;
@@ -87,8 +87,8 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
                   <AnimatePresence mode="wait">
                     <motion.img
                       key={currentImageIndex}
-                      src={project.images[currentImageIndex]}
-                      alt={`${project.title} - Image ${currentImageIndex + 1}`}
+                      src={project.images[currentImageIndex]?.url || ''}
+                      alt={project.images[currentImageIndex]?.alt || `${project.title} - Image ${currentImageIndex + 1}`}
                       className="w-full h-full object-cover"
                       initial={{ opacity: 0, scale: 1.05 }}
                       animate={{ opacity: 1, scale: 1 }}

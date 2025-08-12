@@ -1,5 +1,50 @@
 ## SMTP server setup
 
+# GitHub Image Uploads (Optional)
+
+This project can upload project images directly to a GitHub repository via the server API. This keeps your site static while letting you add images from the Admin panel.
+
+## Configure
+
+1. Create a GitHub Personal Access Token with repo scope.
+2. Set these environment variables for the API server (locally in `.env`, on Vercel as Project Env Vars):
+
+```
+GITHUB_UPLOAD_ENABLED=true
+GITHUB_OWNER=your-github-username-or-org
+GITHUB_REPO=your-assets-repo
+GITHUB_BRANCH=main
+GITHUB_BASE_PATH=public/images/projects
+GITHUB_TOKEN=ghp_xxx
+GITHUB_COMMITTER_NAME=Website Uploader
+GITHUB_COMMITTER_EMAIL=you@example.com
+STORAGE_DRIVER=github # or local
+ADMIN_API_TOKEN=super-secret-admin-token
+```
+
+Notes:
+- Use a separate repository for assets if you don’t want commits in your code repo.
+- The server will fall back to local disk storage if `GITHUB_UPLOAD_ENABLED` is not `true` or variables are missing.
+- Uploaded images are returned as `https://raw.githubusercontent.com/...` URLs and are saved into your `data/projects.json` when you save the project.
+
+## Image validation & optimization
+
+- Server validates image type (JPEG, PNG, WebP, GIF) and max size (10MB)
+- Images are auto-optimized and converted to WebP using `sharp`
+- Admin requests to image endpoints can require `Authorization: Bearer <ADMIN_API_TOKEN>` if set
+
+## Run locally
+
+```
+npm run dev:all
+```
+
+## Deploy
+
+- Deploy the frontend as usual.
+- Deploy the API server with the same environment variables. If using a single deployment, ensure the Node server runs and is reachable by the frontend at `/api/*`.
+- Set `VITE_ADMIN_API_TOKEN` in your frontend environment; it will be sent as `Authorization: Bearer` for Admin image actions.
+
 Create a `.env` file at the project root with:
 
 ```

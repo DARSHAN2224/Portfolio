@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit, Trash2, Save, X, Settings, Database, FileText, Award, Lock, Eye, EyeOff, Shield, Upload, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Settings, Database, FileText, Award, Lock, Eye, EyeOff, Shield, Upload, Image as ImageIcon, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -302,6 +302,9 @@ export const Admin = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            ...(process.env.NODE_ENV === 'production' || true
+              ? { Authorization: `Bearer ${import.meta.env.VITE_ADMIN_API_TOKEN || ''}` }
+              : {}),
           },
           body: JSON.stringify({ imageData, filename }),
         });
@@ -310,7 +313,11 @@ export const Admin = () => {
         
         if (result.ok) {
           // Add the new image URL to the project
-          const updatedImages = [...(editingItem.images || []), result.imageUrl];
+          const newImg = { url: result.imageUrl as string, alt: '' };
+          const updatedImages = [
+            ...((editingItem.images as Array<{ url: string; alt?: string }>) || []),
+            newImg,
+          ];
           setEditingItem({ ...editingItem, images: updatedImages });
           
           toast({
@@ -347,12 +354,17 @@ export const Admin = () => {
       const filename = imageUrl.split('/').pop();
       const response = await fetch(`/api/projects/${editingItem.id}/images/${filename}`, {
         method: 'DELETE',
+        headers: {
+          ...(process.env.NODE_ENV === 'production' || true
+            ? { Authorization: `Bearer ${import.meta.env.VITE_ADMIN_API_TOKEN || ''}` }
+            : {}),
+        },
       });
 
       const result = await response.json();
       
       if (result.ok) {
-        const updatedImages = editingItem.images.filter((img: string) => img !== imageUrl);
+        const updatedImages = (editingItem.images as Array<{ url: string }>).filter((img) => img.url !== imageUrl);
         setEditingItem({ ...editingItem, images: updatedImages });
         
         toast({
@@ -718,22 +730,50 @@ export const Admin = () => {
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Current Images:</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {editingItem.images.map((imageUrl: string, index: number) => (
+                  {(editingItem.images as Array<{ url: string; alt?: string }>).map((img, index: number) => (
                     <div key={index} className="relative group">
                       <img
-                        src={imageUrl}
-                        alt={`Project image ${index + 1}`}
+                        src={img.url}
+                        alt={img.alt || `Project image ${index + 1}`}
                         className="w-full h-20 object-cover rounded border"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
                         }}
                       />
+                      <div className="absolute left-1 top-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            const imgs = [...(editingItem.images as Array<{ url: string; alt?: string }>)];
+                            if (index > 0) {
+                              [imgs[index - 1], imgs[index]] = [imgs[index], imgs[index - 1]];
+                              setEditingItem({ ...editingItem, images: imgs });
+                            }
+                          }}
+                        >
+                          <ArrowUp className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => {
+                            const imgs = [...(editingItem.images as Array<{ url: string; alt?: string }>)];
+                            if (index < imgs.length - 1) {
+                              [imgs[index + 1], imgs[index]] = [imgs[index], imgs[index + 1]];
+                              setEditingItem({ ...editingItem, images: imgs });
+                            }
+                          }}
+                        >
+                          <ArrowDown className="h-3 w-3" />
+                        </Button>
+                      </div>
                       <Button
                         variant="destructive"
                         size="sm"
                         className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => handleImageDelete(imageUrl)}
+                        onClick={() => handleImageDelete(img.url)}
                       >
                         <X className="h-3 w-3" />
                       </Button>
@@ -748,10 +788,14 @@ export const Admin = () => {
               <p className="text-sm text-muted-foreground">Or add image URLs manually:</p>
               <Textarea
                 placeholder="Image URLs (one per line)"
-                value={editingItem?.images?.join('\n') || ''}
+                value={(editingItem?.images || []).map((i: any) => (typeof i === 'string' ? i : i.url)).join('\n')}
                 onChange={(e) => setEditingItem({ 
                   ...editingItem, 
-                  images: e.target.value.split('\n').map(url => url.trim()).filter(Boolean)
+                  images: e.target.value
+                    .split('\n')
+                    .map((url) => url.trim())
+                    .filter(Boolean)
+                    .map((url) => ({ url }))
                 })}
                 className="min-h-[80px]"
               />

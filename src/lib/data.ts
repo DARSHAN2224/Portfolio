@@ -71,7 +71,10 @@ export interface Project {
   title: string;
   impactStatement: string;
   tags: string[];
-  images: string[];
+  images: Array<{
+    url: string;
+    alt?: string;
+  }>;
   demoUrl?: string | null;
   githubUrl: string;
   showDemoButton?: boolean;
@@ -86,9 +89,9 @@ export const projectsData: Project[] = [
     impactStatement: "Won 1st prize at an inter-college hackathon by developing this secure healthcare platform.",
     tags: ["React", "Node.js", "MongoDB", "Express", "WebRTC", "JWT"],
     images: [
-      "/images/projects/telemedicine-1.jpg",
-      "/images/projects/telemedicine-2.jpg",
-      "/images/projects/telemedicine-3.jpg"
+      { url: "/images/projects/telemedicine-1.jpg" },
+      { url: "/images/projects/telemedicine-2.jpg" },
+      { url: "/images/projects/telemedicine-3.jpg" }
     ],
     demoUrl: null,
     githubUrl: "https://github.com/DARSHAN2224/telemedicine-platform",
@@ -100,9 +103,9 @@ export const projectsData: Project[] = [
     impactStatement: "Reduced manual support load by 60% by deploying this NLP-powered chatbot.",
     tags: ["Botpress", "JavaScript", "NLP"],
     images: [
-      "/images/projects/chatbot-1.jpg",
-      "/images/projects/chatbot-2.jpg",
-      "/images/projects/chatbot-3.jpg"
+      { url: "/images/projects/chatbot-1.jpg" },
+      { url: "/images/projects/chatbot-2.jpg" },
+      { url: "/images/projects/chatbot-3.jpg" }
     ],
     demoUrl: "https://edu-chatbot-demo.com",
     githubUrl: "https://github.com/DARSHAN2224/edu-chatbot",
@@ -114,9 +117,9 @@ export const projectsData: Project[] = [
     impactStatement: "Secured 3rd place in a 40-team hardware hackathon by engineering this RFID security system.",
     tags: ["Arduino", "Node.js", "Serial Comm", "HTML/CSS"],
     images: [
-      "/images/projects/rfid-1.jpg",
-      "/images/projects/rfid-2.jpg",
-      "/images/projects/rfid-3.jpg"
+      { url: "/images/projects/rfid-1.jpg" },
+      { url: "/images/projects/rfid-2.jpg" },
+      { url: "/images/projects/rfid-3.jpg" }
     ],
     demoUrl: null,
     githubUrl: "https://github.com/DARSHAN2224/rfid-vehicle-system",
@@ -128,9 +131,9 @@ export const projectsData: Project[] = [
     impactStatement: "Increased user session time by 25% and positive feedback by 40% during user testing.",
     tags: ["Python", "Gemini API", "Flask", "Pandas"],
     images: [
-      "/images/projects/mental-health-1.jpg",
-      "/images/projects/mental-health-2.jpg",
-      "/images/projects/mental-health-3.jpg"
+      { url: "/images/projects/mental-health-1.jpg" },
+      { url: "/images/projects/mental-health-2.jpg" },
+      { url: "/images/projects/mental-health-3.jpg" }
     ],
     demoUrl: null,
     githubUrl: "https://github.com/DARSHAN2224/mental-health-ai",
@@ -142,9 +145,9 @@ export const projectsData: Project[] = [
     impactStatement: "Engineered a scalable MVC platform supporting Admin, Seller, and User roles for 1000+ orders.",
     tags: ["Node.js", "Express", "MongoDB", "EJS", "Docker", "Mocha & Chai"],
     images: [
-      "/images/projects/food-ordering-1.jpg",
-      "/images/projects/food-ordering-2.jpg",
-      "/images/projects/food-ordering-3.jpg"
+      { url: "/images/projects/food-ordering-1.jpg" },
+      { url: "/images/projects/food-ordering-2.jpg" },
+      { url: "/images/projects/food-ordering-3.jpg" }
     ],
     demoUrl: "https://food-ordering-demo.com",
     githubUrl: "https://github.com/DARSHAN2224/food-ordering-system",
