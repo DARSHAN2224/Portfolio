@@ -212,10 +212,28 @@ export const Projects = () => {
 
   const loadProjects = async () => {
     try {
+      // Try dynamic API first (works in local dev or when API is deployed)
       const res = await fetch('/api/projects');
-      const result = await res.json();
-      if (result.ok) {
-        setProjects(result.projects || []);
+      if (res.ok) {
+        const result = await res.json();
+        if (result.ok && Array.isArray(result.projects)) {
+          setProjects(result.projects || []);
+          return;
+        }
+      }
+
+      // Fallback to static JSON (for static hosting like Vercel without API)
+      const staticRes = await fetch('/data/projects.json');
+      if (staticRes.ok) {
+        const json = await staticRes.json();
+        const normalized = (Array.isArray(json) ? json : []).map((p: any) => ({
+          ...p,
+          images: Array.isArray(p.images)
+            ? p.images.map((img: any) => (typeof img === 'string' ? { url: img } : img))
+            : [],
+        }));
+        setProjects(normalized);
+        return;
       }
     } catch (err) {
       console.error('Error loading projects:', err);

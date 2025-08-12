@@ -7,7 +7,7 @@
     "dev": "vite",
     "server": "node server/index.js",
     "dev:all": "concurrently -n WEB,API -c blue,magenta \"npm run dev\" \"npm run server\"",
-    "build": "vite build",
+    "build": "node -e \"const fs=require('fs'),path=require('path');const src='data/projects.json';const publicDir='public/data';if(fs.existsSync(src)){fs.mkdirSync(publicDir,{recursive:true});fs.copyFileSync(src,path.join(publicDir,'projects.json'));console.log('Prepared public/data/projects.json');} else {console.warn('No data/projects.json found');}\" && vite build && node -e \"const fs=require('fs'),path=require('path');const src='public/data/projects.json';const distDir='dist/data';if(fs.existsSync(src)){fs.mkdirSync(distDir,{recursive:true});fs.copyFileSync(src,path.join(distDir,'projects.json'));console.log('Copied to dist/data/projects.json');}\"",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview"
