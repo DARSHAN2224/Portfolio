@@ -23,8 +23,15 @@ async function loadSharp() {
   return __sharp;
 }
 
+// Fix for Vercel serverless environment
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Use process.cwd() for Vercel compatibility
+const getProjectRoot = () => {
+  // In Vercel, use process.cwd(), otherwise use __dirname
+  return process.env.VERCEL ? process.cwd() : path.join(__dirname, '..');
+};
 
 dotenv.config();
 
@@ -259,7 +266,7 @@ async function storeImage({ projectId, filename, base64Content }) {
       path: repoPath,
     };
   }
-  const projectFolder = path.join(__dirname, '../public/images/projects', projectId);
+  const projectFolder = path.join(getProjectRoot(), 'public/images/projects', projectId);
   if (!fs.existsSync(projectFolder)) fs.mkdirSync(projectFolder, { recursive: true });
   const buffer = Buffer.from(base64Content, 'base64');
   const imagePath = path.join(projectFolder, filename);
@@ -273,7 +280,7 @@ async function deleteImage({ projectId, filename }) {
     await githubDeleteFile({ repoPath, commitMessage: `chore(images): delete ${filename} for project ${projectId}` });
     return { ok: true };
   }
-  const imagePath = path.join(__dirname, '../public/images/projects', projectId, filename);
+  const imagePath = path.join(getProjectRoot(), 'public/images/projects', projectId, filename);
   if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
   return { ok: true };
 }
@@ -359,7 +366,7 @@ app.post('/api/projects', async (req, res) => {
       });
     }
 
-    const projectFolder = path.join(__dirname, '../public/images/projects', project.id);
+    const projectFolder = path.join(getProjectRoot(), 'public/images/projects', project.id);
     
     // Create project folder
     if (!fs.existsSync(projectFolder)) {
@@ -368,7 +375,7 @@ app.post('/api/projects', async (req, res) => {
     }
 
     // Save project data to JSON file
-    const projectsFile = path.join(__dirname, '../data/projects.json');
+    const projectsFile = path.join(getProjectRoot(), 'data/projects.json');
     const projectsDir = path.dirname(projectsFile);
     
     if (!fs.existsSync(projectsDir)) {
@@ -408,7 +415,7 @@ app.post('/api/projects', async (req, res) => {
 // Get all projects
 app.get('/api/projects', (req, res) => {
   try {
-    const projectsFile = path.join(__dirname, '../data/projects.json');
+    const projectsFile = path.join(getProjectRoot(), 'data/projects.json');
     
     if (!fs.existsSync(projectsFile)) {
       return res.json({ ok: true, projects: [] });
@@ -436,8 +443,8 @@ app.get('/api/projects', (req, res) => {
 app.delete('/api/projects/:id', (req, res) => {
   try {
     const projectId = req.params.id;
-    const projectsFile = path.join(__dirname, '../data/projects.json');
-    const projectFolder = path.join(__dirname, '../public/images/projects', projectId);
+    const projectsFile = path.join(getProjectRoot(), 'data/projects.json');
+    const projectFolder = path.join(getProjectRoot(), 'public/images/projects', projectId);
     
     // Remove from projects data
     if (fs.existsSync(projectsFile)) {
@@ -472,7 +479,7 @@ app.post('/api/projects/:id/images', requireAdminAuth, async (req, res) => {
 
 
     // Check if project exists
-    const projectsFile = path.join(__dirname, '../data/projects.json');
+    const projectsFile = path.join(getProjectRoot(), 'data/projects.json');
     if (!fs.existsSync(projectsFile)) {
 
       return res.status(404).json({ ok: false, error: 'Projects file not found' });
@@ -534,7 +541,7 @@ app.post('/api/projects/:id/images', requireAdminAuth, async (req, res) => {
 app.get('/api/projects/:id/images', (req, res) => {
   try {
     const projectId = req.params.id;
-    const projectFolder = path.join(__dirname, '../public/images/projects', projectId);
+    const projectFolder = path.join(getProjectRoot(), 'public/images/projects', projectId);
     
     if (!fs.existsSync(projectFolder)) {
       return res.json({ ok: true, images: [] });
@@ -581,7 +588,7 @@ app.get('/api/contact', (_req, res) => {
 // Achievements API endpoints
 app.get('/api/achievements', (req, res) => {
   try {
-    const achievementsFile = path.join(__dirname, '../data/achievements.json');
+    const achievementsFile = path.join(getProjectRoot(), 'data/achievements.json');
     
     if (!fs.existsSync(achievementsFile)) {
       return res.json({ ok: true, achievements: [] });
@@ -641,7 +648,7 @@ app.post('/api/achievements', async (req, res) => {
     
     
     
-    const achievementsFile = path.join(__dirname, '../data/achievements.json');
+    const achievementsFile = path.join(getProjectRoot(), 'data/achievements.json');
     const achievementsDir = path.dirname(achievementsFile);
     
     if (!fs.existsSync(achievementsDir)) {
@@ -684,7 +691,7 @@ app.post('/api/achievements', async (req, res) => {
 app.delete('/api/achievements/:id', (req, res) => {
   try {
     const achievementId = req.params.id;
-    const achievementsFile = path.join(__dirname, '../data/achievements.json');
+    const achievementsFile = path.join(getProjectRoot(), 'data/achievements.json');
     
     if (fs.existsSync(achievementsFile)) {
       let achievements = JSON.parse(fs.readFileSync(achievementsFile, 'utf8'));
@@ -706,7 +713,7 @@ app.delete('/api/achievements/:id', (req, res) => {
 // Skills API endpoints
 app.get('/api/skills', (req, res) => {
   try {
-    const skillsFile = path.join(__dirname, '../data/skills.json');
+    const skillsFile = path.join(getProjectRoot(), 'data/skills.json');
     
     if (!fs.existsSync(skillsFile)) {
       return res.json({ ok: true, skills: {} });
@@ -744,7 +751,7 @@ app.post('/api/skills', async (req, res) => {
       });
     }
     
-    const skillsFile = path.join(__dirname, '../data/skills.json');
+    const skillsFile = path.join(getProjectRoot(), 'data/skills.json');
     const skillsDir = path.dirname(skillsFile);
     
     if (!fs.existsSync(skillsDir)) {
@@ -777,7 +784,7 @@ app.post('/api/skills', async (req, res) => {
 app.delete('/api/skills/:category', (req, res) => {
   try {
     const category = req.params.category;
-    const skillsFile = path.join(__dirname, '../data/skills.json');
+    const skillsFile = path.join(getProjectRoot(), 'data/skills.json');
     
     if (fs.existsSync(skillsFile)) {
       let allSkills = JSON.parse(fs.readFileSync(skillsFile, 'utf8'));
@@ -799,7 +806,7 @@ app.delete('/api/skills/:category', (req, res) => {
 // Experiences API endpoints
 app.get('/api/experiences', (req, res) => {
   try {
-    const experiencesFile = path.join(__dirname, '../data/experiences.json');
+    const experiencesFile = path.join(getProjectRoot(), 'data/experiences.json');
     
     if (!fs.existsSync(experiencesFile)) {
       return res.json({ ok: true, experiences: [] });
@@ -866,7 +873,7 @@ app.post('/api/experiences', async (req, res) => {
     
     
     
-    const experiencesFile = path.join(__dirname, '../data/experiences.json');
+    const experiencesFile = path.join(getProjectRoot(), 'data/experiences.json');
     const experiencesDir = path.dirname(experiencesFile);
     
     if (!fs.existsSync(experiencesDir)) {
@@ -909,7 +916,7 @@ app.post('/api/experiences', async (req, res) => {
 app.delete('/api/experiences/:id', (req, res) => {
   try {
     const experienceId = req.params.id;
-    const experiencesFile = path.join(__dirname, '../data/experiences.json');
+    const experiencesFile = path.join(getProjectRoot(), 'data/experiences.json');
     
     if (fs.existsSync(experiencesFile)) {
       let experiences = JSON.parse(fs.readFileSync(experiencesFile, 'utf8'));
