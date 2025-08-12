@@ -12,8 +12,6 @@
     ],
     "githubUrl": "https://github.com/darshan/healthcare-ai",
     "demoUrl": "https://healthcare-ai-demo.com",
-    "showDemoButton": true,
-    "showGithubButton": true,
     "images": [
       "/images/projects/project-1/ai-dashboard.jpg",
       "/images/projects/project-1/symptom-analyzer.jpg",
@@ -22,6 +20,8 @@
       "/images/projects/project-1/healthcare-mobile.jpg",
       "/images/projects/project-1/cool-geometric-triangular-figure-neon-laser-light-great-backgrounds-wallpapers.jpg"
     ],
+    "showDemoButton": false,
+    "showGithubButton": false,
     "createdAt": "2024-01-15"
   },
   {
@@ -37,8 +37,6 @@
     ],
     "githubUrl": "https://github.com/darshan/smart-home-iot",
     "demoUrl": "https://smart-home-demo.com",
-    "showDemoButton": true,
-    "showGithubButton": true,
     "images": [
       "/images/projects/project-2/iot-dashboard.jpg",
       "/images/projects/project-2/smart-lighting.jpg",
@@ -47,6 +45,8 @@
       "/images/projects/project-2/mobile-app.jpg",
       "/images/projects/project-2/hardware-setup.jpg"
     ],
+    "showDemoButton": false,
+    "showGithubButton": false,
     "createdAt": "2024-02-20"
   },
   {
@@ -62,8 +62,6 @@
     ],
     "githubUrl": "https://github.com/darshan/ecommerce-platform",
     "demoUrl": "https://ecommerce-demo.com",
-    "showDemoButton": true,
-    "showGithubButton": true,
     "images": [
       "/images/projects/project-3/ecommerce-homepage.jpg",
       "/images/projects/project-3/product-catalog.jpg",
@@ -72,6 +70,8 @@
       "/images/projects/project-3/admin-dashboard.jpg",
       "/images/projects/project-3/inventory-management.jpg"
     ],
+    "showDemoButton": false,
+    "showGithubButton": false,
     "createdAt": "2024-03-10"
   }
 ]
