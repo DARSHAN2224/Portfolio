@@ -300,4 +300,44 @@
       transform: scale(1);
     }
   }
+
+  /* Video-like carousel effects */
+  .carousel-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .carousel-image {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .carousel-image:hover {
+    transform: scale(1.05);
+  }
+
+  /* Enhanced navigation buttons */
+  .carousel-nav-btn {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .carousel-nav-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Progress bar animation */
+  .carousel-progress {
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  }
+
+    /* Enhanced project card hover effects */
+  .project-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
 }

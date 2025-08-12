@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit, Trash2, Save, X, Settings, Database, FileText, Award, Lock, Eye, EyeOff, Shield } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Settings, Database, FileText, Award, Lock, Eye, EyeOff, Shield, Upload, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Project, Achievement, Experience, projectsData, achievementsData, experienceData } from '@/lib/data';
+import { Project, Achievement, Experience, achievementsData, experienceData } from '@/lib/data';
 import { ADMIN_CONFIG } from '@/config/admin';
 
 interface AdminState {
@@ -27,13 +27,38 @@ export const Admin = () => {
   const [lastActivity, setLastActivity] = useState(0);
   const [activeTab, setActiveTab] = useState<'projects' | 'achievements' | 'experiences'>('projects');
   const [data, setData] = useState<AdminState>({
-    projects: projectsData,
+    projects: [],
     achievements: achievementsData,
     experiences: experienceData,
   });
   const [editingItem, setEditingItem] = useState<any>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const { toast } = useToast();
+
+  // Load projects from server on mount
+  useEffect(() => {
+    loadProjects();
+  }, []);
+
+  const loadProjects = async () => {
+    try {
+      const response = await fetch('/api/projects');
+      const result = await response.json();
+      
+      if (result.ok) {
+        setData(prev => ({
+          ...prev,
+          projects: result.projects || []
+        }));
+      } else {
+        console.error('Failed to load projects:', result.error);
+      }
+    } catch (err) {
+      console.error('Error loading projects:', err);
+    }
+  };
 
   // Check session timeout on mount and activity
   useEffect(() => {
@@ -114,7 +139,7 @@ export const Admin = () => {
     setPassword('');
     setEditingItem(null);
     setIsAdding(false);
-    setIsOpen(false);
+    setSelectedImage(null);
     toast({
       title: "Logged Out",
       description: reason || "You have been logged out.",
@@ -127,6 +152,11 @@ export const Admin = () => {
     setEditingItem({
       id: generateId(),
       createdAt: new Date().toISOString().split('T')[0],
+      ...(type === 'projects' && { 
+        images: [],
+        showDemoButton: true,
+        showGithubButton: true
+      }),
     });
   };
 
@@ -136,50 +166,213 @@ export const Admin = () => {
     setIsAdding(false);
   };
 
-  const handleDelete = (type: keyof AdminState, id: string) => {
+  const handleDelete = async (type: keyof AdminState, id: string) => {
     if (!isAuthenticated) return;
-    setData(prev => ({
-      ...prev,
-      [type]: prev[type].filter(item => item.id !== id)
-    }));
-    toast({
-      title: "Item Deleted",
-      description: "Item has been removed successfully.",
-    });
-  };
-
-  const handleSave = (type: keyof AdminState) => {
-    if (!isAuthenticated || !editingItem) return;
-
-    if (isAdding) {
-      setData(prev => ({
-        ...prev,
-        [type]: [...prev[type], editingItem]
-      }));
-      toast({
-        title: "Item Added",
-        description: "New item has been added successfully.",
-      });
+    
+    if (type === 'projects') {
+      try {
+        const response = await fetch(`/api/projects/${id}`, {
+          method: 'DELETE',
+        });
+        const result = await response.json();
+        
+        if (result.ok) {
+          await loadProjects(); // Reload projects from server
+          toast({
+            title: "Project Deleted",
+            description: "Project and its folder have been removed successfully.",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: result.error || "Failed to delete project",
+            variant: "destructive",
+          });
+        }
+      } catch (err) {
+        toast({
+          title: "Error",
+          description: "Failed to delete project",
+          variant: "destructive",
+        });
+      }
     } else {
+      // Handle other types locally for now
       setData(prev => ({
         ...prev,
-        [type]: prev[type].map(item => 
-          item.id === editingItem.id ? editingItem : item
-        )
+        [type]: prev[type].filter(item => item.id !== id)
       }));
       toast({
-        title: "Item Updated",
-        description: "Item has been updated successfully.",
+        title: "Item Deleted",
+        description: "Item has been removed successfully.",
       });
     }
-    
-    setEditingItem(null);
-    setIsAdding(false);
+  };
+
+  const handleSave = async (type: keyof AdminState) => {
+    if (!isAuthenticated || !editingItem) return;
+
+    setIsLoading(true);
+
+    try {
+      if (type === 'projects') {
+        // Save project to server
+        const response = await fetch('/api/projects', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(editingItem),
+        });
+
+        const result = await response.json();
+        
+        if (result.ok) {
+          await loadProjects(); // Reload projects from server
+          toast({
+            title: isAdding ? "Project Added" : "Project Updated",
+            description: `Project has been ${isAdding ? 'added' : 'updated'} successfully. Folder created: ${result.projectFolder}`,
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: result.error || "Failed to save project",
+            variant: "destructive",
+          });
+          return;
+        }
+      } else {
+        // Handle other types locally for now
+        if (isAdding) {
+          setData(prev => ({
+            ...prev,
+            [type]: [...prev[type], editingItem]
+          }));
+          toast({
+            title: "Item Added",
+            description: "New item has been added successfully.",
+          });
+        } else {
+          setData(prev => ({
+            ...prev,
+            [type]: prev[type].map(item => 
+              item.id === editingItem.id ? editingItem : item
+            )
+          }));
+          toast({
+            title: "Item Updated",
+            description: "Item has been updated successfully.",
+          });
+        }
+      }
+      
+      setEditingItem(null);
+      setIsAdding(false);
+      setSelectedImage(null);
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to save item",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
     setEditingItem(null);
     setIsAdding(false);
+    setSelectedImage(null);
+  };
+
+  const handleImageUpload = async () => {
+    if (!selectedImage || !editingItem?.id) return;
+
+    try {
+      setIsLoading(true);
+      
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const imageData = e.target?.result as string;
+        const filename = selectedImage.name;
+        
+        const response = await fetch(`/api/projects/${editingItem.id}/images`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ imageData, filename }),
+        });
+
+        const result = await response.json();
+        
+        if (result.ok) {
+          // Add the new image URL to the project
+          const updatedImages = [...(editingItem.images || []), result.imageUrl];
+          setEditingItem({ ...editingItem, images: updatedImages });
+          
+          toast({
+            title: "Image Uploaded",
+            description: "Image has been uploaded successfully.",
+          });
+          
+          setSelectedImage(null);
+        } else {
+          toast({
+            title: "Upload Failed",
+            description: result.error || "Failed to upload image",
+            variant: "destructive",
+          });
+        }
+      };
+      
+      reader.readAsDataURL(selectedImage);
+    } catch (err) {
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleImageDelete = async (imageUrl: string) => {
+    if (!editingItem?.id) return;
+
+    try {
+      const filename = imageUrl.split('/').pop();
+      const response = await fetch(`/api/projects/${editingItem.id}/images/${filename}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+      
+      if (result.ok) {
+        const updatedImages = editingItem.images.filter((img: string) => img !== imageUrl);
+        setEditingItem({ ...editingItem, images: updatedImages });
+        
+        toast({
+          title: "Image Deleted",
+          description: "Image has been removed successfully.",
+        });
+      } else {
+        toast({
+          title: "Delete Failed",
+          description: result.error || "Failed to delete image",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete image",
+        variant: "destructive",
+      });
+    }
   };
 
   // Login Screen
@@ -408,7 +601,7 @@ export const Admin = () => {
     </motion.div>
   );
 
-  // Form rendering functions (unchanged)
+  // Form rendering functions
   function renderProjectForm() {
     return (
       <Card className="mb-6">
@@ -447,12 +640,134 @@ export const Admin = () => {
             value={editingItem?.demoUrl || ''}
             onChange={(e) => setEditingItem({ ...editingItem, demoUrl: e.target.value || null })}
           />
+          
+          {/* Button Visibility Controls */}
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <Settings className="h-4 w-4" />
+              <span className="font-medium">Button Visibility</span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="showGithubButton"
+                  checked={editingItem?.showGithubButton !== false}
+                  onChange={(e) => setEditingItem({ 
+                    ...editingItem, 
+                    showGithubButton: e.target.checked 
+                  })}
+                  className="rounded border-gray-300"
+                />
+                <label htmlFor="showGithubButton" className="text-sm font-medium">
+                  Show GitHub Button
+                </label>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="showDemoButton"
+                  checked={editingItem?.showDemoButton !== false}
+                  onChange={(e) => setEditingItem({ 
+                    ...editingItem, 
+                    showDemoButton: e.target.checked 
+                  })}
+                  className="rounded border-gray-300"
+                />
+                <label htmlFor="showDemoButton" className="text-sm font-medium">
+                  Show Live Demo Button
+                </label>
+              </div>
+            </div>
+            
+            <div className="text-xs text-muted-foreground">
+              <p>• GitHub button will only show if GitHub URL is provided</p>
+              <p>• Live Demo button will only show if Demo URL is provided</p>
+            </div>
+          </div>
+          
+          {/* Image Upload Section */}
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <ImageIcon className="h-4 w-4" />
+              <span className="font-medium">Project Images</span>
+            </div>
+            
+            {/* File Upload */}
+            <div className="flex items-center space-x-2">
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setSelectedImage(e.target.files?.[0] || null)}
+                className="flex-1"
+              />
+              <Button
+                onClick={handleImageUpload}
+                disabled={!selectedImage || isLoading}
+                size="sm"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Upload
+              </Button>
+            </div>
+            
+            {/* Current Images */}
+            {editingItem?.images && editingItem.images.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Current Images:</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {editingItem.images.map((imageUrl: string, index: number) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={imageUrl}
+                        alt={`Project image ${index + 1}`}
+                        className="w-full h-20 object-cover rounded border"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleImageDelete(imageUrl)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Manual URL Input */}
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">Or add image URLs manually:</p>
+              <Textarea
+                placeholder="Image URLs (one per line)"
+                value={editingItem?.images?.join('\n') || ''}
+                onChange={(e) => setEditingItem({ 
+                  ...editingItem, 
+                  images: e.target.value.split('\n').map(url => url.trim()).filter(Boolean)
+                })}
+                className="min-h-[80px]"
+              />
+            </div>
+          </div>
+          
           <div className="flex space-x-2">
-            <Button onClick={() => handleSave('projects')} className="flex-1">
+            <Button 
+              onClick={() => handleSave('projects')} 
+              className="flex-1"
+              disabled={isLoading}
+            >
               <Save className="mr-2 h-4 w-4" />
-              Save
+              {isLoading ? 'Saving...' : 'Save'}
             </Button>
-            <Button variant="outline" onClick={handleCancel}>
+            <Button variant="outline" onClick={handleCancel} disabled={isLoading}>
               <X className="mr-2 h-4 w-4" />
               Cancel
             </Button>
@@ -567,6 +882,18 @@ export const Admin = () => {
                   <p className="text-xs text-muted-foreground">
                     Created: {new Date(project.createdAt).toLocaleDateString()}
                   </p>
+                  
+                  {/* Button Status Indicators */}
+                  <div className="flex gap-2 mt-2">
+                    <div className="flex items-center gap-1">
+                      <div className={`w-2 h-2 rounded-full ${project.showGithubButton !== false ? 'bg-green-500' : 'bg-gray-400'}`} />
+                      <span className="text-xs text-muted-foreground">GitHub</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className={`w-2 h-2 rounded-full ${project.demoUrl && project.showDemoButton !== false ? 'bg-green-500' : 'bg-gray-400'}`} />
+                      <span className="text-xs text-muted-foreground">Demo</span>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button

@@ -71,9 +71,11 @@ export interface Project {
   title: string;
   impactStatement: string;
   tags: string[];
-  videoUrl?: string;
+  images: string[];
   demoUrl?: string | null;
   githubUrl: string;
+  showDemoButton?: boolean;
+  showGithubButton?: boolean;
   createdAt: string;
 }
 
@@ -83,7 +85,11 @@ export const projectsData: Project[] = [
     title: "Telemedicine Web Platform",
     impactStatement: "Won 1st prize at an inter-college hackathon by developing this secure healthcare platform.",
     tags: ["React", "Node.js", "MongoDB", "Express", "WebRTC", "JWT"],
-    videoUrl: "/videos/telemedicine-demo.mp4",
+    images: [
+      "/images/projects/telemedicine-1.jpg",
+      "/images/projects/telemedicine-2.jpg",
+      "/images/projects/telemedicine-3.jpg"
+    ],
     demoUrl: null,
     githubUrl: "https://github.com/DARSHAN2224/telemedicine-platform",
     createdAt: "2024-01-15",
@@ -93,7 +99,11 @@ export const projectsData: Project[] = [
     title: "AI Chatbot for Educational Institutions",
     impactStatement: "Reduced manual support load by 60% by deploying this NLP-powered chatbot.",
     tags: ["Botpress", "JavaScript", "NLP"],
-    videoUrl: "/videos/edu-chatbot-demo.mp4",
+    images: [
+      "/images/projects/chatbot-1.jpg",
+      "/images/projects/chatbot-2.jpg",
+      "/images/projects/chatbot-3.jpg"
+    ],
     demoUrl: "https://edu-chatbot-demo.com",
     githubUrl: "https://github.com/DARSHAN2224/edu-chatbot",
     createdAt: "2024-02-20",
@@ -103,7 +113,11 @@ export const projectsData: Project[] = [
     title: "RFID Based E-Vehicle Starter System",
     impactStatement: "Secured 3rd place in a 40-team hardware hackathon by engineering this RFID security system.",
     tags: ["Arduino", "Node.js", "Serial Comm", "HTML/CSS"],
-    videoUrl: "/videos/rfid-demo.mp4",
+    images: [
+      "/images/projects/rfid-1.jpg",
+      "/images/projects/rfid-2.jpg",
+      "/images/projects/rfid-3.jpg"
+    ],
     demoUrl: null,
     githubUrl: "https://github.com/DARSHAN2224/rfid-vehicle-system",
     createdAt: "2023-12-10",
@@ -113,7 +127,11 @@ export const projectsData: Project[] = [
     title: "Mental Health AI Assistant",
     impactStatement: "Increased user session time by 25% and positive feedback by 40% during user testing.",
     tags: ["Python", "Gemini API", "Flask", "Pandas"],
-    videoUrl: "/videos/mental-health-ai-demo.mp4",
+    images: [
+      "/images/projects/mental-health-1.jpg",
+      "/images/projects/mental-health-2.jpg",
+      "/images/projects/mental-health-3.jpg"
+    ],
     demoUrl: null,
     githubUrl: "https://github.com/DARSHAN2224/mental-health-ai",
     createdAt: "2024-03-05",
@@ -123,7 +141,11 @@ export const projectsData: Project[] = [
     title: "Multi-Role Food Ordering System",
     impactStatement: "Engineered a scalable MVC platform supporting Admin, Seller, and User roles for 1000+ orders.",
     tags: ["Node.js", "Express", "MongoDB", "EJS", "Docker", "Mocha & Chai"],
-    videoUrl: "/videos/food-ordering-demo.mp4",
+    images: [
+      "/images/projects/food-ordering-1.jpg",
+      "/images/projects/food-ordering-2.jpg",
+      "/images/projects/food-ordering-3.jpg"
+    ],
     demoUrl: "https://food-ordering-demo.com",
     githubUrl: "https://github.com/DARSHAN2224/food-ordering-system",
     createdAt: "2024-01-30",
