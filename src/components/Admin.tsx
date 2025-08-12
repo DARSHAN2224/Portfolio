@@ -44,16 +44,30 @@ export const Admin = () => {
 
   const loadProjects = async () => {
     try {
+      // Try API first
       const response = await fetch('/api/projects');
-      const result = await response.json();
-      
-      if (result.ok) {
-        setData(prev => ({
-          ...prev,
-          projects: result.projects || []
+      if (response.ok) {
+        const result = await response.json();
+        if (result.ok && Array.isArray(result.projects)) {
+          setData(prev => ({
+            ...prev,
+            projects: result.projects || []
+          }));
+          return;
+        }
+      }
+
+      // Fallback to static JSON for static hosting (read-only)
+      const staticRes = await fetch('/data/projects.json');
+      if (staticRes.ok) {
+        const json = await staticRes.json();
+        const normalized = (Array.isArray(json) ? json : []).map((p: any) => ({
+          ...p,
+          images: Array.isArray(p.images)
+            ? p.images.map((img: any) => (typeof img === 'string' ? { url: img } : img))
+            : [],
         }));
-      } else {
-        console.error('Failed to load projects:', result.error);
+        setData(prev => ({ ...prev, projects: normalized }));
       }
     } catch (err) {
       console.error('Error loading projects:', err);
