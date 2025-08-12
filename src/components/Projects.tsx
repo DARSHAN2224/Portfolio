@@ -28,6 +28,7 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [imageLoadErrors, setImageLoadErrors] = useState<Set<number>>(new Set());
+  const [imageLoading, setImageLoading] = useState(true);
 
   const nextImage = useCallback(() => {
     if (!project.images || project.images.length === 0) return;
@@ -81,16 +82,31 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
     }
   }, [project.images, currentImageIndex]);
 
+  // Reset image loading state when image changes
+  useEffect(() => {
+    setImageLoading(true);
+    setImageLoadErrors(new Set());
+  }, [currentImageIndex]);
+
   const handleMouseEnter = () => setIsAutoPlaying(false);
   const handleMouseLeave = () => setIsAutoPlaying(true);
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const target = e.target as HTMLImageElement;
     const imageIndex = parseInt(target.dataset.imageIndex || '0');
-    setImageLoadErrors(prev => ({
-      ...prev,
-      [imageIndex]: true
-    }));
+    setImageLoadErrors(prev => new Set([...prev, imageIndex]));
+    
+    // Try to move to next image if current one fails
+    if (project.images && project.images.length > 1) {
+      const nextIndex = (imageIndex + 1) % project.images.length;
+      if (!imageLoadErrors.has(nextIndex)) {
+        setCurrentImageIndex(nextIndex);
+      }
+    }
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
   };
 
   // Check if current image has an error
@@ -120,12 +136,17 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
           >
             {hasValidImages ? (
               <div className="relative w-full h-full">
+                {imageLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                  </div>
+                )}
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={currentImageIndex}
                     src={project.images[currentImageIndex]?.url}
                     alt={project.images[currentImageIndex]?.alt || `Project ${index + 1} image ${currentImageIndex + 1}`}
-                    className="w-full h-full object-cover rounded-lg"
+                    className={`w-full h-full object-cover rounded-lg ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
                     data-image-index={currentImageIndex}
                     initial={{ opacity: 0, scale: 1.05 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -135,6 +156,7 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
                       ease: 'easeInOut',
                     }}
                     onError={handleImageError}
+                    onLoad={handleImageLoad}
                   />
                 </AnimatePresence>
                 
@@ -234,12 +256,15 @@ export const Projects = () => {
 
   const loadProjects = async () => {
     try {
+      setIsLoading(true);
       // Try API first
       const response = await fetch('/api/projects');
       if (response.ok) {
         const result = await response.json();
-        if (result.ok && Array.isArray(result.projects)) {
-          setProjects(result.projects || []);
+        // API returns projects array directly
+        if (Array.isArray(result)) {
+          setProjects(result);
+          setIsLoading(false);
           return;
         }
       }
@@ -255,11 +280,13 @@ export const Projects = () => {
             : [],
         }));
         setProjects(normalized);
+        setIsLoading(false);
       }
     } catch (err) {
       console.error('Error loading projects:', err);
-      // Fallback to static data
-      // setProjects(projectsData); // projectsData is not defined in this file
+      setIsLoading(false);
+      // Fallback to empty array
+      setProjects([]);
     }
   };
 

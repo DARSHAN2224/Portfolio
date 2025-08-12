@@ -26,30 +26,68 @@
       "use": "@vercel/node"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/projects(.*)",
-      "dest": "/api/projects.js"
+      "source": "/api/projects(.*)",
+      "destination": "/api/projects.js"
     },
     {
-      "src": "/api/experiences",
-      "dest": "/api/experiences.js"
+      "source": "/api/experiences",
+      "destination": "/api/experiences.js"
     },
     {
-      "src": "/api/skills",
-      "dest": "/api/skills.js"
+      "source": "/api/skills",
+      "destination": "/api/skills.js"
     },
     {
-      "src": "/api/achievements",
-      "dest": "/api/achievements.js"
+      "source": "/api/achievements",
+      "destination": "/api/achievements.js"
     },
     {
-      "src": "/api/test",
-      "dest": "/api/test.js"
+      "source": "/api/test",
+      "destination": "/api/test.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)\\.js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)\\.css",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/css"
+        }
+      ]
+    },
+    {
+      "source": "/images/(.*)\\.svg",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "source": "/images/(.*)\\.(jpg|jpeg|png|gif|webp)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "image/$2"
+        }
+      ]
     }
   ]
 }
