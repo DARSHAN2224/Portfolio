@@ -27,37 +27,75 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [imageLoadErrors, setImageLoadErrors] = useState<Set<number>>(new Set());
 
   const nextImage = useCallback(() => {
-    setCurrentImageIndex((prev) =>
-      prev === project.images.length - 1 ? 0 : prev + 1
-    );
-  }, [project.images.length]);
+    if (!project.images || project.images.length === 0) return;
+    
+    setCurrentImageIndex((prev) => {  
+      const next = (prev + 1) % project.images.length;
+      return next;
+    });
+  }, [project.images]);
 
   const prevImage = useCallback(() => {
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? project.images.length - 1 : prev - 1
-    );
-  }, [project.images.length]);
+    if (!project.images || project.images.length === 0) return;
+    
+    setCurrentImageIndex((prev) => {
+      const prevIndex = prev === 0 ? project.images.length - 1 : prev - 1;
+      return prevIndex;
+    });
+  }, [project.images]);
 
   const goToImage = (index: number) => {
-    if (index >= 0 && index < project.images.length) {
-      setCurrentImageIndex(index);
-    }
+    if (!project.images || index < 0 || index >= project.images.length) return;
+    setCurrentImageIndex(index);
   };
 
+  // Reset current image index if all images have errors
   useEffect(() => {
-    if (project.images.length <= 1) return;
-    const interval = setInterval(() => {
-      if (isAutoPlaying) {
-        nextImage();
+    if (project.images && project.images.length > 0) {
+      if (currentImageIndex >= project.images.length) {
+        setCurrentImageIndex(0);
       }
+    }
+  }, [project.images, currentImageIndex]);
+
+  // Auto-advance to next image
+  useEffect(() => {
+    if (!isAutoPlaying || !project.images || project.images.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      nextImage();
     }, 4000);
+    
     return () => clearInterval(interval);
-  }, [isAutoPlaying, nextImage, project.images.length]);
+  }, [isAutoPlaying, nextImage, project.images]);
+
+  // Safety check for current image index
+  useEffect(() => {
+    if (project.images && project.images.length > 0) {
+      if (currentImageIndex >= project.images.length) {
+        setCurrentImageIndex(0);
+      }
+    }
+  }, [project.images, currentImageIndex]);
 
   const handleMouseEnter = () => setIsAutoPlaying(false);
   const handleMouseLeave = () => setIsAutoPlaying(true);
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    const imageIndex = parseInt(target.dataset.imageIndex || '0');
+    setImageLoadErrors(prev => ({
+      ...prev,
+      [imageIndex]: true
+    }));
+  };
+
+  // Check if current image has an error
+  const currentImageHasError = imageLoadErrors.has(currentImageIndex);
+  const hasValidImages = project.images && project.images.length > 0;
 
   return (
     <motion.div
@@ -80,118 +118,105 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            {project.images.length > 0 ? (
-              <>
-                {/* Image */}
-                <div className="relative w-full h-full z-10">
-                  <AnimatePresence mode="wait">
-                    <motion.img
-                      key={currentImageIndex}
-                      src={project.images[currentImageIndex]?.url || ''}
-                      alt={project.images[currentImageIndex]?.alt || `${project.title} - Image ${currentImageIndex + 1}`}
-                      className="w-full h-full object-cover"
-                      initial={{ opacity: 0, scale: 1.05 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{
-                        duration: 0.5,
-                        ease: 'easeInOut',
-                      }}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        target.nextElementSibling?.classList.remove('hidden');
-                      }}
-                    />
-                  </AnimatePresence>
-                </div>
-
-                {/* Prev button */}
+            {hasValidImages ? (
+              <div className="relative w-full h-full">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={currentImageIndex}
+                    src={project.images[currentImageIndex]?.url}
+                    alt={project.images[currentImageIndex]?.alt || `Project ${index + 1} image ${currentImageIndex + 1}`}
+                    className="w-full h-full object-cover rounded-lg"
+                    data-image-index={currentImageIndex}
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{
+                      duration: 0.5,
+                      ease: 'easeInOut',
+                    }}
+                    onError={handleImageError}
+                  />
+                </AnimatePresence>
+                
+                {/* Navigation arrows */}
                 {project.images.length > 1 && (
                   <>
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 z-20">
-                      <Button
-                        variant="ghost"
-                        size="lg"
-                        className="w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-sm border border-white/20 shadow-lg"
-                        onClick={prevImage}
-                      >
-                        <ChevronLeft className="h-6 w-6" />
-                      </Button>
-                    </div>
-
-                    {/* Next button */}
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 z-20">
-                      <Button
-                        variant="ghost"
-                        size="lg"
-                        className="w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-sm border border-white/20 shadow-lg"
-                        onClick={nextImage}
-                      >
-                        <ChevronRight className="h-6 w-6" />
-                      </Button>
-                    </div>
+                    <button
+                      onClick={prevImage}
+                      className="carousel-nav-btn absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={nextImage}
+                      className="carousel-nav-btn absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
                   </>
                 )}
-
-                {/* Counter */}
-                <div className="absolute top-4 right-4 bg-black/80 text-white px-3 py-2 rounded-full text-sm backdrop-blur-md border border-white/20 shadow-lg z-20">
-                  {currentImageIndex + 1} / {project.images.length}{' '}
-                  {project.images.length > 1 && (isAutoPlaying ? '▶️' : '⏸️')}
-                </div>
-
-                {/* Dots */}
+                
+                {/* Image counter */}
                 {project.images.length > 1 && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
+                  <div className="absolute bottom-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                    {currentImageIndex + 1} / {project.images.length}
+                  </div>
+                )}
+
+                {/* Image dots */}
+                {project.images.length > 1 && (
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
                     {project.images.map((_, idx) => (
                       <button
                         key={idx}
                         onClick={() => goToImage(idx)}
-                        className={`w-3 h-3 rounded-full border-2 transition-all ${
-                          idx === currentImageIndex
-                            ? 'bg-white border-white scale-125'
-                            : 'bg-white/30 border-white/50 hover:bg-white/60'
+                        className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                          idx === currentImageIndex ? 'bg-white' : 'bg-white/50 hover:bg-white/75'
                         }`}
+                        aria-label={`Go to image ${idx + 1}`}
                       />
                     ))}
                   </div>
                 )}
-
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-              </>
+              </div>
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-pink-600/20 rounded-xl">
-                <Image className="h-10 w-10 text-white" />
+              <div className="flex items-center justify-center w-full h-full">
+                <div className="text-center text-white/70 p-6">
+                  <div className="text-6xl mb-4 opacity-50">🖼️</div>
+                  <div className="text-lg font-semibold mb-2">No Images Available</div>
+                  <div className="text-sm opacity-80">Use the admin panel to upload project screenshots</div>
+                  <div className="text-xs opacity-60 mt-2">Click the shield icon in the bottom-right corner</div>
+                </div>
               </div>
             )}
           </div>
 
           {/* Tech stack */}
           <div className="flex flex-wrap gap-2">
-            {project.tags.map((tag) => (
-              <Badge key={tag} variant="secondary">
+            {project.tags && project.tags.map((tag, tagIndex) => (
+              <Badge key={tagIndex} variant="secondary" className="text-xs">
                 {tag}
               </Badge>
             ))}
           </div>
         </CardContent>
 
-        <CardFooter className="flex gap-3">
+        <CardFooter className="flex flex-wrap gap-2 pt-4">
+          {project.showGithubButton !== false && project.githubUrl && (
+            <Button variant="outline" size="sm" asChild>
+              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                <Github className="mr-2 h-4 w-4" />
+                GitHub
+              </a>
+            </Button>
+          )}
           {project.demoUrl && project.showDemoButton !== false && (
             <Button variant="default" size="sm" asChild>
               <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="mr-2 h-4 w-4" />
                 Live Demo
-              </a>
-            </Button>
-          )}
-
-          {project.showGithubButton !== false && (
-            <Button variant="outline" size="sm" asChild>
-              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                <Github className="mr-2 h-4 w-4" />
-                GitHub
               </a>
             </Button>
           )}
@@ -205,24 +230,21 @@ export const Projects = () => {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    loadProjects();
-  }, []);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const loadProjects = async () => {
     try {
-      // Try dynamic API first (works in local dev or when API is deployed)
-      const res = await fetch('/api/projects');
-      if (res.ok) {
-        const result = await res.json();
+      // Try API first
+      const response = await fetch('/api/projects');
+      if (response.ok) {
+        const result = await response.json();
         if (result.ok && Array.isArray(result.projects)) {
           setProjects(result.projects || []);
           return;
         }
       }
 
-      // Fallback to static JSON (for static hosting like Vercel without API)
+      // Fallback to static JSON for static hosting (read-only)
       const staticRes = await fetch('/data/projects.json');
       if (staticRes.ok) {
         const json = await staticRes.json();
@@ -233,40 +255,85 @@ export const Projects = () => {
             : [],
         }));
         setProjects(normalized);
-        return;
       }
     } catch (err) {
       console.error('Error loading projects:', err);
-    } finally {
-      setIsLoading(false);
+      // Fallback to static data
+      // setProjects(projectsData); // projectsData is not defined in this file
     }
   };
 
+  // Load projects on mount and listen for real-time updates
+  useEffect(() => {
+    loadProjects();
+    
+    // Listen for real-time content updates
+    const handleContentUpdate = (event: CustomEvent) => {
+      const { type, action, timestamp } = event.detail;
+      
+      // Automatically reload projects when content is updated
+      if (type === 'projects') {
+        loadProjects();
+      }
+    };
+
+    // Listen for content updates
+    window.addEventListener('portfolioContentUpdate', handleContentUpdate as EventListener);
+    
+    // Also check localStorage for updates (fallback)
+    const checkForUpdates = () => {
+      const lastUpdate = localStorage.getItem('portfolioLastUpdate');
+      const updateType = localStorage.getItem('portfolioUpdateType');
+      
+      if (lastUpdate && updateType) {
+        const [type, action] = updateType.split(':');
+        if (type === 'projects') {
+          loadProjects();
+        }
+      }
+    };
+    
+    // Check for updates every 2 seconds as fallback
+    const intervalId = setInterval(checkForUpdates, 2000);
+    
+    return () => {
+      window.removeEventListener('portfolioContentUpdate', handleContentUpdate as EventListener);
+      clearInterval(intervalId);
+    };
+  }, []);
+
   return (
-    <section id="projects" className="py-20 bg-gradient-to-b from-background to-muted/20">
-      <div className="container mx-auto px-4">
+    <section ref={ref} className="section-padding bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="container-max">
         <motion.div
-          ref={ref}
           initial={{ opacity: 0, y: 50 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold mb-4 gradient-text">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Featured Projects
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Here are some of my recent projects that showcase my skills and passion for creating impactful solutions.
+          <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
+            Explore my latest work showcasing full-stack development, AI integration, and innovative solutions
           </p>
+          
+          {/* Real-time update indicator */}
+          {isUpdating && (
+            <div className="mt-4 flex items-center justify-center space-x-2 text-blue-600 dark:text-blue-400">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <span className="text-sm font-medium">Updating content...</span>
+            </div>
+          )}
         </motion.div>
         {isLoading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         ) : projects.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {projects.map((project, idx) => (
-              <ProjectCard key={project.id} project={project} index={idx} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {projects.map((project, index) => (
+              <ProjectCard key={project.id} project={project} index={index} />
             ))}
           </div>
         ) : (

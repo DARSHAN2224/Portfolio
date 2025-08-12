@@ -1,0 +1,77 @@
+[
+  {
+    "id": "project-1",
+    "title": "AI-Powered Healthcare Assistant",
+    "impactStatement": "Developed an intelligent healthcare assistant that helps patients with symptom analysis and appointment scheduling, improving healthcare accessibility by 40%.",
+    "tags": [
+      "AI",
+      "Machine Learning",
+      "Python",
+      "React",
+      "Healthcare"
+    ],
+    "githubUrl": "https://github.com/darshan/healthcare-ai",
+    "demoUrl": "https://healthcare-ai-demo.com",
+    "images": [
+      "/images/projects/project-1/ai-dashboard.svg",
+      "/images/projects/project-1/symptom-analyzer.svg",
+      "/images/projects/project-1/appointment-scheduler.svg",
+      "/images/projects/project-1/patient-interface.svg",
+      "/images/projects/project-1/healthcare-mobile.svg",
+      "/images/projects/project-1/cool-geometric-triangular-figure-neon-laser-light-great-backgrounds-wallpapers.svg"
+    ],
+    "showDemoButton": false,
+    "showGithubButton": false,
+    "createdAt": "2024-01-15"
+  },
+  {
+    "id": "project-2",
+    "title": "Smart IoT Home Automation",
+    "impactStatement": "Built a comprehensive IoT home automation system that controls lighting, temperature, and security, reducing energy consumption by 25%.",
+    "tags": [
+      "IoT",
+      "Arduino",
+      "Node.js",
+      "React Native",
+      "Hardware"
+    ],
+    "githubUrl": "https://github.com/darshan/smart-home-iot",
+    "demoUrl": "https://smart-home-demo.com",
+    "images": [
+      "/images/projects/project-2/iot-dashboard.svg",
+      "/images/projects/project-2/smart-lighting.svg",
+      "/images/projects/project-2/temperature-control.svg",
+      "/images/projects/project-2/security-system.svg",
+      "/images/projects/project-2/mobile-app.svg",
+      "/images/projects/project-2/hardware-setup.svg"
+    ],
+    "showDemoButton": false,
+    "showGithubButton": false,
+    "createdAt": "2024-02-20"
+  },
+  {
+    "id": "project-3",
+    "title": "E-Commerce Platform",
+    "impactStatement": "Created a full-stack e-commerce platform with real-time inventory management and payment processing, serving 10,000+ customers.",
+    "tags": [
+      "Full Stack",
+      "React",
+      "Node.js",
+      "MongoDB",
+      "Stripe"
+    ],
+    "githubUrl": "https://github.com/darshan/ecommerce-platform",
+    "demoUrl": "https://ecommerce-demo.com",
+    "images": [
+      "/images/projects/project-3/ecommerce-homepage.svg",
+      "/images/projects/project-3/product-catalog.svg",
+      "/images/projects/project-3/shopping-cart.svg",
+      "/images/projects/project-3/checkout-process.svg",
+      "/images/projects/project-3/admin-dashboard.svg",
+      "/images/projects/project-3/inventory-management.svg"
+    ],
+    "showDemoButton": false,
+    "showGithubButton": false,
+    "createdAt": "2024-03-10"
+  }
+]

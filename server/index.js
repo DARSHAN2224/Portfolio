@@ -9,7 +9,19 @@ import { renderOwnerEmail, renderSenderThankYouEmail } from './templates.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import sharp from 'sharp';
+// sharp is optional; we'll load it lazily inside the upload handler
+let __sharp = null;
+async function loadSharp() {
+  if (__sharp !== null) return __sharp;
+  try {
+    const mod = await import('sharp');
+    __sharp = mod?.default || mod;
+  } catch (err) {
+    console.warn('[warn] sharp not available; skipping image optimization');
+    __sharp = null;
+  }
+  return __sharp;
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +33,12 @@ const PORT = process.env.PORT || 3001;
 
 // Security & parsing
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json({ limit: '10mb' })); // Increased limit for image uploads
 app.use(express.static('public')); // Serve static files
 
@@ -35,29 +52,48 @@ app.use('/api/projects', limiter);
 
 // Validation schema
 const ContactSchema = z.object({
-  name: z.string().min(2).max(100),
-  email: z.string().email(),
-  message: z.string().min(10).max(5000),
-  ownerEmail: z.string().email().optional(),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  message: z.string().min(10, 'Message must be at least 10 characters'),
+  ownerEmail: z.string().email('Invalid owner email address')
 });
 
-// Project management endpoints
 const ImageUnionSchema = z.union([
-  z.string().url(),
-  z.object({ url: z.string().url(), alt: z.string().optional() })
+  z.string().url('Invalid image URL'),
+  z.object({
+    url: z.string().url('Invalid image URL'),
+    alt: z.string().optional()
+  })
 ]);
 
 const ProjectSchema = z.object({
-  id: z.string(),
-  title: z.string().min(1).max(100),
-  impactStatement: z.string().min(1).max(500),
-  tags: z.array(z.string()),
-  githubUrl: z.string().url(),
-  demoUrl: z.string().url().optional(),
+  id: z.string().min(1, 'Project ID is required'),
+  title: z.string().min(1, 'Project title is required'),
+  impactStatement: z.string().min(1, 'Impact statement is required'),
+  tags: z.array(z.string()).min(1, 'At least one tag is required'),
+  githubUrl: z.string().url('Invalid GitHub URL').optional(),
+  demoUrl: z.string().url('Invalid demo URL').optional(),
   images: z.array(ImageUnionSchema),
-  showDemoButton: z.boolean().optional().default(true),
-  showGithubButton: z.boolean().optional().default(true),
-  createdAt: z.string(),
+  showDemoButton: z.boolean().optional(),
+  showGithubButton: z.boolean().optional(),
+  createdAt: z.string().min(1, 'Creation date is required')
+});
+
+const AchievementSchema = z.object({
+  id: z.string().min(1, 'Achievement ID is required'),
+  title: z.string().min(1, 'Achievement title is required'),
+  description: z.string().min(1, 'Achievement description is required'),
+  icon: z.string().min(1, 'Achievement icon is required'),
+  createdAt: z.string().min(1, 'Creation date is required')
+});
+
+const ExperienceSchema = z.object({
+  id: z.string().min(1, 'Experience ID is required'),
+  year: z.string().min(1, 'Experience year is required'),
+  title: z.string().min(1, 'Experience title is required'),
+  subtitle: z.string().min(1, 'Experience subtitle is required'),
+  description: z.string().min(1, 'Experience description is required'),
+  createdAt: z.string().min(1, 'Creation date is required')
 });
 
 // Nodemailer transporter
@@ -245,22 +281,90 @@ async function deleteImage({ projectId, filename }) {
 // Create project folder and save project data
 app.post('/api/projects', async (req, res) => {
   try {
+  
+    
     const parsed = ProjectSchema.safeParse(req.body);
     if (!parsed.success) {
+
       return res.status(400).json({ 
         ok: false, 
         error: 'Invalid project data', 
-        details: parsed.error.flatten() 
+        details: parsed.error.flatten(),
+        received: req.body,
+        required: ['id', 'title', 'impactStatement', 'tags', 'githubUrl', 'images', 'createdAt'],
+        optional: ['demoUrl', 'showDemoButton', 'showGithubButton']
       });
     }
 
     const project = parsed.data;
+    
+    // Validate that required fields are not empty strings
+    if (!project.title.trim()) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Project title cannot be empty'
+      });
+    }
+    
+    if (!project.impactStatement.trim()) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Impact statement cannot be empty'
+      });
+    }
+    
+    // Check GitHub URL only if GitHub button is enabled
+    if (project.showGithubButton !== false && (!project.githubUrl || !project.githubUrl.trim())) {
+      return res.status(400).json({
+        ok: false,
+        error: 'GitHub URL is required when GitHub button is enabled'
+      });
+    }
+    
+    // Check Demo URL only if Demo button is enabled
+    if (project.showDemoButton !== false && project.demoUrl && !project.demoUrl.trim()) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Demo URL cannot be empty when Demo button is enabled'
+      });
+    }
+    
+    // Validate URL format if provided
+    if (project.githubUrl && project.githubUrl.trim()) {
+      try {
+        new URL(project.githubUrl);
+      } catch {
+        return res.status(400).json({
+          ok: false,
+          error: 'Invalid GitHub URL format'
+        });
+      }
+    }
+    
+    if (project.demoUrl && project.demoUrl.trim()) {
+      try {
+        new URL(project.demoUrl);
+      } catch {
+        return res.status(400).json({
+          ok: false,
+          error: 'Invalid Demo URL format'
+        });
+      }
+    }
+    
+    if (!Array.isArray(project.tags) || project.tags.length === 0) {
+      return res.status(400).json({
+        ok: false,
+        error: 'At least one tag is required'
+      });
+    }
+
     const projectFolder = path.join(__dirname, '../public/images/projects', project.id);
     
     // Create project folder
     if (!fs.existsSync(projectFolder)) {
       fs.mkdirSync(projectFolder, { recursive: true });
-      console.log(`Created project folder: ${projectFolder}`);
+      
     }
 
     // Save project data to JSON file
@@ -345,7 +449,7 @@ app.delete('/api/projects/:id', (req, res) => {
     // Remove project folder
     if (fs.existsSync(projectFolder)) {
       fs.rmSync(projectFolder, { recursive: true, force: true });
-      console.log(`Deleted project folder: ${projectFolder}`);
+      
     }
 
     res.json({ ok: true, message: 'Project deleted successfully' });
@@ -365,29 +469,59 @@ app.post('/api/projects/:id/images', requireAdminAuth, async (req, res) => {
     const projectId = req.params.id;
     const { imageData, filename, alt = '' } = req.body; // Base64 data URL expected
 
+
+
+    // Check if project exists
+    const projectsFile = path.join(__dirname, '../data/projects.json');
+    if (!fs.existsSync(projectsFile)) {
+
+      return res.status(404).json({ ok: false, error: 'Projects file not found' });
+    }
+
+    const projects = JSON.parse(fs.readFileSync(projectsFile, 'utf8'));
+    const project = projects.find(p => p.id === projectId);
+    if (!project) {
+
+      return res.status(404).json({ ok: false, error: 'Project not found' });
+    }
+
+    
+
     if (!imageData || !filename) {
+
       return res.status(400).json({ ok: false, error: 'Image data and filename are required' });
     }
 
     // Validate type/size
     const validation = validateDataUrlImage(imageData);
     if (!validation.ok) {
+
       return res.status(400).json({ ok: false, error: validation.error });
     }
 
-    // Optimize/convert using sharp
+    
+
+    // Optimize but preserve original format and filename (optional if sharp is present)
     const inputBuffer = Buffer.from(validation.base64, 'base64');
-    // Try to preserve type; convert PNG/JPEG to WebP for better size
-    const optimized = await sharp(inputBuffer)
-      .rotate() // auto-orient
-      .toFormat('webp', { quality: 82 })
-      .toBuffer();
+    let optimizedBuffer = inputBuffer;
+    const sharp = await loadSharp();
+    if (sharp) {
+      try {
+        optimizedBuffer = await sharp(inputBuffer).rotate().toBuffer(); // auto-orient
 
-    const outBase64 = optimized.toString('base64');
-    // Replace extension to .webp if needed
-    const outFilename = filename.replace(/\.(jpe?g|png|gif|webp)$/i, '.webp');
+      } catch (optErr) {
+        console.warn('[warn] sharp optimization failed, using original buffer:', optErr?.message || optErr);
+        optimizedBuffer = inputBuffer;
+      }
+    }
 
+    const outBase64 = optimizedBuffer.toString('base64');
+    const outFilename = filename; // keep the same name and extension
+
+    
+    
     const stored = await storeImage({ projectId, filename: outFilename, base64Content: outBase64 });
+    
 
     res.json({ ok: true, message: 'Image uploaded successfully', imageUrl: stored.url, alt });
   } catch (err) {
@@ -444,14 +578,374 @@ app.get('/api/contact', (_req, res) => {
   res.json({ ok: true, usage: 'POST /api/contact with { name, email, message, ownerEmail }' });
 });
 
+// Achievements API endpoints
+app.get('/api/achievements', (req, res) => {
+  try {
+    const achievementsFile = path.join(__dirname, '../data/achievements.json');
+    
+    if (!fs.existsSync(achievementsFile)) {
+      return res.json({ ok: true, achievements: [] });
+    }
+
+    const achievements = JSON.parse(fs.readFileSync(achievementsFile, 'utf8'));
+    res.json({ ok: true, achievements: achievements || [] });
+  } catch (err) {
+    console.error('[achievements] get error', err);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to get achievements',
+      details: err.message 
+    });
+  }
+});
+
+app.post('/api/achievements', async (req, res) => {
+  try {
+
+    
+    const parsed = AchievementSchema.safeParse(req.body);
+    if (!parsed.success) {
+
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Invalid achievement data', 
+        details: parsed.error.flatten(),
+        received: req.body,
+        required: ['id', 'title', 'description', 'icon', 'createdAt'],
+      });
+    }
+
+    const achievement = parsed.data;
+    
+    // Additional validation for empty strings
+    if (!achievement.title.trim()) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Achievement title cannot be empty'
+      });
+    }
+    
+    if (!achievement.description.trim()) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Achievement description cannot be empty'
+      });
+    }
+    
+    if (!achievement.icon.trim()) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Achievement icon cannot be empty'
+      });
+    }
+    
+    
+    
+    const achievementsFile = path.join(__dirname, '../data/achievements.json');
+    const achievementsDir = path.dirname(achievementsFile);
+    
+    if (!fs.existsSync(achievementsDir)) {
+      fs.mkdirSync(achievementsDir, { recursive: true });
+    }
+
+    let achievements = [];
+    if (fs.existsSync(achievementsFile)) {
+      achievements = JSON.parse(fs.readFileSync(achievementsFile, 'utf8'));
+    }
+
+    // Check if achievement already exists
+    const existingIndex = achievements.findIndex(a => a.id === achievement.id);
+    if (existingIndex >= 0) {
+      
+      achievements[existingIndex] = achievement;
+    } else {
+      
+      achievements.push(achievement);
+    }
+
+    fs.writeFileSync(achievementsFile, JSON.stringify(achievements, null, 2));
+    
+    
+    res.json({ 
+      ok: true, 
+      message: 'Achievement saved successfully',
+      achievement: achievement
+    });
+  } catch (err) {
+    console.error('[achievements] save error', err);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to save achievement',
+      details: err.message 
+    });
+  }
+});
+
+app.delete('/api/achievements/:id', (req, res) => {
+  try {
+    const achievementId = req.params.id;
+    const achievementsFile = path.join(__dirname, '../data/achievements.json');
+    
+    if (fs.existsSync(achievementsFile)) {
+      let achievements = JSON.parse(fs.readFileSync(achievementsFile, 'utf8'));
+      achievements = achievements.filter(a => a.id !== achievementId);
+      fs.writeFileSync(achievementsFile, JSON.stringify(achievements, null, 2));
+    }
+
+    res.json({ ok: true, message: 'Achievement deleted successfully' });
+  } catch (err) {
+    console.error('[achievements] delete error', err);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to delete achievement',
+      details: err.message 
+    });
+  }
+});
+
+// Skills API endpoints
+app.get('/api/skills', (req, res) => {
+  try {
+    const skillsFile = path.join(__dirname, '../data/skills.json');
+    
+    if (!fs.existsSync(skillsFile)) {
+      return res.json({ ok: true, skills: {} });
+    }
+
+    const skills = JSON.parse(fs.readFileSync(skillsFile, 'utf8'));
+    res.json({ ok: true, skills: skills || {} });
+  } catch (err) {
+    console.error('[skills] get error', err);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to get skills',
+      details: err.message 
+    });
+  }
+});
+
+app.post('/api/skills', async (req, res) => {
+  try {
+
+    
+    const { category, skills } = req.body;
+    
+    if (!category || !category.trim()) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Skill category is required'
+      });
+    }
+    
+    if (!Array.isArray(skills) || skills.length === 0) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Skills array is required and cannot be empty'
+      });
+    }
+    
+    const skillsFile = path.join(__dirname, '../data/skills.json');
+    const skillsDir = path.dirname(skillsFile);
+    
+    if (!fs.existsSync(skillsDir)) {
+      fs.mkdirSync(skillsDir, { recursive: true });
+    }
+
+    let allSkills = {};
+    if (fs.existsSync(skillsFile)) {
+      allSkills = JSON.parse(fs.readFileSync(skillsFile, 'utf8'));
+    }
+
+    allSkills[category] = skills;
+    fs.writeFileSync(skillsFile, JSON.stringify(allSkills, null, 2));
+    
+    res.json({ 
+      ok: true, 
+      message: 'Skills saved successfully',
+      skills: allSkills
+    });
+  } catch (err) {
+    console.error('[skills] save error', err);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to save skills',
+      details: err.message 
+    });
+  }
+});
+
+app.delete('/api/skills/:category', (req, res) => {
+  try {
+    const category = req.params.category;
+    const skillsFile = path.join(__dirname, '../data/skills.json');
+    
+    if (fs.existsSync(skillsFile)) {
+      let allSkills = JSON.parse(fs.readFileSync(skillsFile, 'utf8'));
+      delete allSkills[category];
+      fs.writeFileSync(skillsFile, JSON.stringify(allSkills, null, 2));
+    }
+
+    res.json({ ok: true, message: 'Skill category deleted successfully' });
+  } catch (err) {
+    console.error('[skills] delete error', err);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to delete skill category',
+      details: err.message 
+    });
+  }
+});
+
+// Experiences API endpoints
+app.get('/api/experiences', (req, res) => {
+  try {
+    const experiencesFile = path.join(__dirname, '../data/experiences.json');
+    
+    if (!fs.existsSync(experiencesFile)) {
+      return res.json({ ok: true, experiences: [] });
+    }
+
+    const experiences = JSON.parse(fs.readFileSync(experiencesFile, 'utf8'));
+    res.json({ ok: true, experiences: experiences || [] });
+  } catch (err) {
+    console.error('[experiences] get error', err);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to get experiences',
+      details: err.message 
+    });
+  }
+});
+
+app.post('/api/experiences', async (req, res) => {
+  try {
+
+    
+    const parsed = ExperienceSchema.safeParse(req.body);
+    if (!parsed.success) {
+
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Invalid experience data', 
+        details: parsed.error.flatten(),
+        received: req.body,
+        required: ['id', 'year', 'title', 'subtitle', 'description', 'createdAt'],
+      });
+    }
+
+    const experience = parsed.data;
+    
+    // Additional validation for empty strings
+    if (!experience.year.trim()) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Experience year cannot be empty'
+      });
+    }
+    
+    if (!experience.title.trim()) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Experience title cannot be empty'
+      });
+    }
+    
+    if (!experience.subtitle.trim()) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Experience subtitle cannot be empty'
+      });
+    }
+    
+    if (!experience.description.trim()) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Experience description cannot be empty'
+      });
+    }
+    
+    
+    
+    const experiencesFile = path.join(__dirname, '../data/experiences.json');
+    const experiencesDir = path.dirname(experiencesFile);
+    
+    if (!fs.existsSync(experiencesDir)) {
+      fs.mkdirSync(experiencesDir, { recursive: true });
+    }
+
+    let experiences = [];
+    if (fs.existsSync(experiencesFile)) {
+      experiences = JSON.parse(fs.readFileSync(experiencesFile, 'utf8'));
+    }
+
+    // Check if experience already exists
+    const existingIndex = experiences.findIndex(e => e.id === experience.id);
+    if (existingIndex >= 0) {
+      
+      experiences[existingIndex] = experience;
+    } else {
+      
+      experiences.push(experience);
+    }
+
+    fs.writeFileSync(experiencesFile, JSON.stringify(experiences, null, 2));
+    
+    
+    res.json({ 
+      ok: true, 
+      message: 'Experience saved successfully',
+      experience: experience
+    });
+  } catch (err) {
+    console.error('[experiences] save error', err);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to save experience',
+      details: err.message 
+    });
+  }
+});
+
+app.delete('/api/experiences/:id', (req, res) => {
+  try {
+    const experienceId = req.params.id;
+    const experiencesFile = path.join(__dirname, '../data/experiences.json');
+    
+    if (fs.existsSync(experiencesFile)) {
+      let experiences = JSON.parse(fs.readFileSync(experiencesFile, 'utf8'));
+      experiences = experiences.filter(e => e.id !== experienceId);
+      fs.writeFileSync(experiencesFile, JSON.stringify(experiences, null, 2));
+    }
+
+    res.json({ ok: true, message: 'Experience deleted successfully' });
+  } catch (err) {
+    console.error('[experiences] delete error', err);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to delete experience',
+      details: err.message 
+    });
+  }
+});
+
 app.post('/api/contact', async (req, res) => {
   try {
+
+    
     if (!isSmtpConfigured()) {
+
       return res.status(500).json({ ok: false, code: 'SMTP_NOT_CONFIGURED', error: 'SMTP credentials are missing' });
     }
+    
     const parsed = ContactSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ ok: false, error: 'Invalid input', details: parsed.error.flatten() });
+
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Invalid input', 
+        details: parsed.error.flatten(),
+        received: req.body 
+      });
     }
 
     const { name, email, message, ownerEmail } = parsed.data;
@@ -490,6 +984,23 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true });
 });
 
+app.get('/api/test-contact', (req, res) => {
+  res.json({ 
+    ok: true, 
+    message: 'Contact endpoint is working',
+    schema: {
+      required: ['name', 'email', 'message'],
+      optional: ['ownerEmail'],
+      example: {
+        name: 'Test User',
+        email: 'test@example.com',
+        message: 'Hello, this is a test message',
+        ownerEmail: 'owner@example.com'
+      }
+    }
+  });
+});
+
 app.get('/api/verify', async (_req, res) => {
   try {
     if (!isSmtpConfigured()) {
@@ -503,8 +1014,13 @@ app.get('/api/verify', async (_req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`SMTP API running on http://localhost:${PORT}`);
-});
+// Export the Express app for serverless environments (e.g., Vercel)
+export default app;
 
+// Start the server only when not running in a serverless environment
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+  
+  });
+}
 

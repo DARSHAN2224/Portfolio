@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useContact } from '@/stores/useContact';
 import { personalInfo } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
+import { toast as sonnerToast } from '@/components/ui/sonner';
 
 export const Contact = () => {
   const [ref, inView] = useInView({
@@ -27,6 +28,7 @@ export const Contact = () => {
         description: "Please fill in all fields.",
         variant: "destructive",
       });
+      sonnerToast.error('Please fill in all fields.');
       return;
     }
 
@@ -44,11 +46,24 @@ export const Contact = () => {
       if (!response.ok) {
         const code = (data && data.code) || 'UNKNOWN_ERROR';
         let description = 'Failed to send message. Please try again.';
-        if (code === 'SMTP_NOT_CONFIGURED') {
+
+        // Prefer server validation messages when available
+        if (response.status === 400 && data && data.details && data.details.fieldErrors) {
+          try {
+            const fieldErrors = data.details.fieldErrors as Record<string, string[]>;
+            const firstError = Object.values(fieldErrors).flat().find(Boolean);
+            if (firstError) description = String(firstError);
+          } catch {
+            // ignore parse issues
+          }
+        } else if (code === 'SMTP_NOT_CONFIGURED') {
           description = 'Email service is not configured yet. Please try again later or use the direct email button below.';
         } else if (code === 'SEND_FAILED' || code === 'VERIFY_FAILED') {
           description = 'Email service is unavailable right now. Please use the direct email button below.';
+        } else if (data && typeof data.error === 'string' && data.error.trim()) {
+          description = data.error;
         }
+ 
         throw new Error(description);
       }
 
@@ -58,6 +73,7 @@ export const Contact = () => {
         description: "Thank you for reaching out. I'll get back to you soon.",
         variant: "default",
       });
+      sonnerToast.success("Message sent! I'll get back to you soon.");
       resetForm();
     } catch (error) {
       setError("Failed to send message. Please try again.");
@@ -66,6 +82,7 @@ export const Contact = () => {
         description: error instanceof Error ? error.message : "Failed to send message. Please try again.",
         variant: "destructive",
       });
+      sonnerToast.error(error instanceof Error ? error.message : 'Failed to send message. Please try again.');
     } finally {
       setSubmitting(false);
     }

@@ -1,0 +1,9 @@
+{
+  "Languages": ["JavaScript", "Python", "C++"],
+  "Backend": ["Node.js", "Express.js", "RESTful APIs", "JWT"],
+  "Frontend": ["React.js", "Next.js", "HTML", "CSS", "Tailwind CSS"],
+  "Databases": ["MongoDB", "MySQL"],
+  "AI/ML": ["NLP", "Pandas", "Gemini API"],
+  "Tools": ["Git", "Docker", "Postman"],
+  "Concepts": ["WebRTC", "MVC Architecture", "Testing (Mocha & Chai)"]
+}

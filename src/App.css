@@ -40,3 +40,37 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Admin Panel Scroll Isolation */
+.admin-panel-overlay {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-panel-overlay * {
+  overscroll-behavior: contain;
+}
+
+.admin-panel-overlay .overflow-y-auto {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.admin-panel-overlay .overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-panel-overlay .overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-panel-overlay .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.admin-panel-overlay .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}
