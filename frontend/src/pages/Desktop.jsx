@@ -136,8 +136,8 @@ const Desktop = ({ chatHistory, setChatHistory }) => {
                                 </div>
 
                                 <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">{profile?.name?.toUpperCase() || 'DARSHAN P'}</h1>
-                                <div className="flex items-center gap-2 text-primary text-xs tracking-[0.2em] uppercase mb-6 bg-primary/10 px-3 py-1 rounded min-h-[28px]">
-                                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-blink"></span>
+                                <div className="flex items-center gap-2 text-primary text-xs tracking-widest uppercase mb-6 bg-primary/10 px-3 py-1 rounded min-h-[28px] whitespace-nowrap overflow-hidden">
+                                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-blink flex-shrink-0"></span>
                                     <TypingText texts={roles} speed={100} pause={2000} />
                                 </div>
 
@@ -160,7 +160,7 @@ const Desktop = ({ chatHistory, setChatHistory }) => {
                                     </div>
                                 </div>
 
-                                <button onClick={() => navigate('/about')} className="w-full py-3 border border-slate-600 rounded hover:bg-white/5 hover:border-white hover:text-white transition-all text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2 group/btn">
+                                <button onClick={() => navigate('/about')} className="w-full mt-4 py-3 border border-slate-600 rounded hover:bg-white/5 hover:border-white hover:text-white transition-all text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2 group/btn">
                                     Initialize Bio Protocol
                                     <span className="material-symbols-outlined text-[16px] group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
                                 </button>
