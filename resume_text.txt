@@ -1,0 +1,55 @@
+DARSHAN P
+Bengaluru,India|+91-6363757497|pdarshan2224@gmail.com
+LinkedIn: https://www.linkedin.com/in/pdarshan2224/|GitHub: https://github.com/DARSHAN2224
+SUMMARY
+SoftwareEngineeringundergraduateskilledinbuildingscalableapplicationsusingPython, JavaScript, Java, C++, HTML,
+and CSS. Developed full-stack, AI-powered, and data-driven projects integrating REST APIs, databases, and responsive
+interfaces. Strongfocusonwritingclean,maintainablecode,optimizingperformance,anddeliveringsecuresolutions.
+EDUCATION
+BachelorofEngineering–ComputerScience&Engineering Aug2022–Present(ExpectedJun2026)
+NagarjunaCollegeofEngineering&Technology(NCET),Bengaluru
+CGPA:8.8/10.0
+EXPERIENCE
+SoftwareIntern|PreflexSolutionsPvt. Ltd.,Bengaluru Nov2025–Present
+• Supportedapplicationdesignanddevelopmentoffull-stackfeaturesusingReact.js,Python,MySQL,andPostgreSQL.
+• DevelopedandmaintainedtechnicalandfunctionaldocumentationforAPIsandsystemcomponents.
+• Assistedincodedevelopment,unittesting,andvalidationtoensurereliablesystemperformance.
+• Workedcloselywithcross-functionalteamswhilefollowingdefinedoperationalprocesses.
+BackendDeveloperIntern|NagarjunaTechSolutions,Bengaluru Jan2025–Apr2025
+• Supporteddeliveryofbackendtechnologycapabilitybydeveloping30+RESTAPIsusingNode.jsandMongoDB.
+• Assistedinunderstandingbusinessandfunctionalrequirementsandtranslatingthemintobackendlogic.
+• CreatedandexecutedtestdataandAPItestscriptsusingPostman,reducingintegrationdefectsby30%.
+• ParticipatedinAgilesprintcycles,adheringtodefineddevelopmentprocessesandtools.
+PROJECTS
+Multi-RoleFoodOrderingSystem Node.js,Express,MongoDB,React.js
+• Designedandimplementeda3-rolesystem(Admin/Seller/User)withrole-basedaccesscontrol.
+• Supportedapplicationworkflowdesign,orderprocessing,andsystemvalidation.
+• Createdanalyticsdashboardstoprovidedata-driveninsightsintoordertrendsandsystemusage.
+VoiceConverter–Real-TimeAITranslationSystem Next.js,React,FastAPI,Python,WebSocket
+• Developedareal-timespeechtranscriptionandtranslationsystemwithlow-latencyaudiostreamingusingWebSockets.
+• OptimizedPCMaudioprocessingusingAudioWorkletandadaptivesilencedetection(30%bandwidthimprovement).
+• IntegratedandevaluatedofflineAImodels(WhisperAI,ArgosTranslate,PiperTTS)supporting8+languages.
+HealthCare–AI-PoweredMentalHealthPlatform Node.js,React,Python,Flask,MongoDB
+• Builtafull-stackmentalhealthplatformfeaturingAIchatbot,emotionanalysis,andpersonalizedwellnesssupport.
+• IntegratedNLPandTransformer-basedmodelsforemotiondetectionandcontext-awareconversations.
+• ImplementedJWT-basedauthenticationandRESTAPIsforsecure,role-basedaccess.
+SKILLS
+• Languages: JavaScript,Python,Java,C++
+• Backend&Systems: Node.js,Express.js,RESTAPIs,Flask
+• Frontend: React.js,HTML,CSS,EJS
+• Databases: MongoDB,MySQL
+• AI&ML:NLP,Transformers,LangChain,Pandas,NumPy
+• Tools: Git,GitHubCopilot,GoogleCloud,Postman,VSCode
+• CoreConcepts: OOPs,MVC,UnitTesting,Networking
+• SoftSkills: Communication,Teamwork,TimeManagement
+ACHIEVEMENTS
+• WonBestMajorProjectAwardfor“Aerlogisim”,securing1stPrizeatdepartmentandinter-departmentlevels.
+• Solved300+DSAproblemsonLeetCodeandGeeksforGeeks.
+• PublishedaScopus-indexedresearchpaperonAIChatbots(ICKECS2025).
+• RedHatAmbassador–NCET.
+CERTIFICATIONS
+• ServiceNowCertifiedSystemAdministrator(CSA)–ServiceNow.
+• ServiceNowCertifiedApplicationDeveloper(CAD)–ServiceNow.
+• DataStructures&Algorithms–GeeksforGeeks.
+• PythonProgrammingCertification–RedHat.
+• OracleCertifiedFoundationsAssociate–Oracle.

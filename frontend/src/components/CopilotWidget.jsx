@@ -212,7 +212,7 @@ const CopilotWidget = ({ className = "", chatHistory, setChatHistory }) => {
                                     </div>
                                     <div className="flex-1 overflow-hidden">
                                         <p className="text-[10px] text-gray-500 uppercase tracking-wider">Direct Channel</p>
-                                        <p className="text-xs text-white truncate font-mono select-all">darshan.patel@example.com</p>
+                                        <p className="text-xs text-white truncate font-mono select-all">pdarshan2224@gmail.com</p>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 mt-2">
