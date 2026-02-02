@@ -29,7 +29,7 @@ const projects = [
             latency: "<150ms",
             availability: "Production"
         },
-        imageUrl: "/api/placeholder/800/450" // Placeholder - replace with actual image
+        imageUrl: "/images/projects/food-ordering.svg"
     },
     {
         title: "Voice Converter – Real-Time AI Translation System",
@@ -46,7 +46,7 @@ const projects = [
             latency: "<200ms",
             availability: "Web App"
         },
-        imageUrl: "/api/placeholder/800/450" // Placeholder - replace with actual image
+        imageUrl: "/images/projects/voice-converter.svg"
     },
     {
         title: "HealthCare – AI-Powered Mental Health Platform",
@@ -63,7 +63,7 @@ const projects = [
             latency: "<100ms",
             availability: "Production"
         },
-        imageUrl: "/api/placeholder/800/450" // Placeholder - replace with actual image
+        imageUrl: "/images/projects/healthcare-ai.svg"
     }
 ];
 
