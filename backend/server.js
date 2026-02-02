@@ -369,29 +369,58 @@ app.post('/api/contact', async (req, res) => {
   }
 
   try {
+    // 1. Notification Email to YOU (the portfolio owner)
     const mailOptions = {
-      from: email, // Sender address (from form)
-      to: process.env.EMAIL_USER, // Your email address (receiver)
+      from: process.env.EMAIL_USER, // Send from YOUR authenticated email to avoid spoofing checks
+      to: process.env.EMAIL_USER,   // Send TO yourself
+      replyTo: email,               // Reply to the USER'S email
       subject: `Portfolio Contact: ${name}`,
       text: `
-                Name: ${name}
-                Email: ${email}
-                
-                Message:
-                ${message}
-            `,
+        Name: ${name}
+        Email: ${email}
+        
+        Message:
+        ${message}
+      `,
       html: `
-                <h3>New Contact Form Submission</h3>
-                <p><strong>Name:</strong> ${name}</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <br/>
-                <p><strong>Message:</strong></p>
-                <p style="background-color: #f5f5f5; padding: 15px; border-radius: 5px;">${message}</p>
-            `,
+        <h3>New Contact Form Submission</h3>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <br/>
+        <p><strong>Message:</strong></p>
+        <p style="background-color: #f5f5f5; padding: 15px; border-radius: 5px;">${message}</p>
+      `,
     };
 
     await transporter.sendMail(mailOptions);
-    console.log(`Email sent from ${email}`);
+    console.log(`Notification email sent to ${process.env.EMAIL_USER}`);
+
+    // 2. Auto-Reply Email to the USER
+    const autoReplyOptions = {
+      from: process.env.EMAIL_USER,
+      to: email, // Send to the person who filled out the form
+      subject: `Thank you for contacting Darshan P`,
+      text: `Hi ${name},\n\nThank you for reaching out! I have received your message and will get back to you as soon as possible.\n\nBest regards,\nDarshan P`,
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>Thank you for reaching out!</h2>
+          <p>Hi ${name},</p>
+          <p>I have received your message regarding:</p>
+          <blockquote style="border-left: 4px solid #ddd; padding-left: 10px; color: #555;">
+            ${message.substring(0, 100)}${message.length > 100 ? '...' : ''}
+          </blockquote>
+          <p>I will review it and get back to you as soon as possible.</p>
+          <br/>
+          <p>Best regards,</p>
+          <p><strong>Darshan P</strong></p>
+          <p style="font-size: 12px; color: #888;">Full Stack Engineer</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(autoReplyOptions);
+    console.log(`Auto-reply sent to ${email}`);
+
     res.status(200).json({ message: 'Email sent successfully' });
 
   } catch (error) {

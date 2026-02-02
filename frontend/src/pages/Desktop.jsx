@@ -87,11 +87,11 @@ const Desktop = ({ chatHistory, setChatHistory }) => {
                     {/* Desktop Icons (Left Side) */}
                     <div className="col-span-12 lg:col-span-2 flex lg:flex-col flex-row flex-wrap gap-8 items-start lg:items-center justify-start lg:justify-center p-4">
                         {/* Resume */}
-                        <a href="/resume.pdf" download className="group flex flex-col items-center gap-2 cursor-pointer w-24">
+                        <a href="/Darshan_P_resume.pdf" download="Darshan_P_resume.pdf" className="group flex flex-col items-center gap-2 cursor-pointer w-24">
                             <div className="w-16 h-16 rounded-xl bg-[#232f48]/50 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:bg-[#232f48] group-hover:border-primary/50 group-hover:shadow-[0_0_15px_rgba(19,91,236,0.5)] shadow-sm">
                                 <span className="material-symbols-outlined text-4xl text-[#92a4c9] group-hover:text-primary transition-colors">description</span>
                             </div>
-                            <p className="text-xs font-medium text-center text-gray-300 bg-black/30 rounded px-2 py-0.5 backdrop-blur-sm group-hover:text-white">Resume.pdf</p>
+                            <p className="text-xs font-medium text-center text-gray-300 bg-black/30 rounded px-2 py-0.5 backdrop-blur-sm group-hover:text-white">Resume</p>
                         </a>
 
                         {/* Contact */}

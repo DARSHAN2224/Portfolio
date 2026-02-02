@@ -11,11 +11,22 @@ const Contact = ({ chatHistory, setChatHistory }) => {
         e.preventDefault();
         setStatus('sending');
         try {
-            // Simulate network
-            await new Promise(r => setTimeout(r, 1500));
-            setStatus('success');
-            setFormData({ name: '', email: '', message: '' });
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                setStatus('success');
+                setFormData({ name: '', email: '', message: '' });
+            } else {
+                setStatus('error');
+            }
         } catch (err) {
+            console.error('Contact form error:', err);
             setStatus('error');
         }
     };
