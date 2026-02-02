@@ -1,0 +1,9 @@
+# Keep Render Service Alive Script
+# This prevents Render free tier from spinning down after 15 minutes
+
+services:
+  # Ping backend every 14 minutes
+  - name: keep-alive-backend
+    type: cron
+    schedule: "*/14 * * * *"
+    command: curl -f https://darshan-os-backend.onrender.com/health || exit 1

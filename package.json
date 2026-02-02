@@ -1,0 +1,17 @@
+{
+  "name": "darshan-os",
+  "version": "1.0.0",
+  "description": "DARSHAN-OS: Autonomous Engineer Command Center - Production-grade MERN stack application",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "start:backend": "npm --prefix backend start",
+    "start:frontend": "npm --prefix frontend start",
+    "test": "npm --prefix backend test && npm --prefix frontend test",
+    "lint": "npm --prefix backend lint && npm --prefix frontend lint"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
