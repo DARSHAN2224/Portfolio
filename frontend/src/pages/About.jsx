@@ -57,11 +57,11 @@ const About = ({ chatHistory, setChatHistory }) => {
                             </div>
 
                             <div className="relative z-10">
-                                <h1 className="text-4xl font-bold text-white mb-6">Hello, I'm <span className="text-primary">{profile?.name || 'Darshan Patel'}</span>.</h1>
+                                <h1 className="text-4xl font-bold text-white mb-6">Hello, I'm <span className="text-primary">{profile?.name || 'Darshan P'}</span>.</h1>
 
                                 <div className="space-y-6 max-w-3xl text-gray-300 leading-relaxed">
                                     <p className="text-lg">
-                                        {profile?.bio || "I am a passionate Full Stack Engineer and Creative Developer based in San Francisco, CA. I specialize in building high-performance web applications, distributed systems, and immersive digital experiences."}
+                                        {profile?.bio || "Full Stack Engineer with 2+ years of experience in building scalable web applications and AI-powered solutions. Proficient in the MERN stack (MongoDB, Express, React, Node.js), Next.js, and Python. Passionate about solving real-world problems through code."}
                                     </p>
 
                                     <div className="p-4 bg-black/50 border border-white/10 rounded-lg font-mono text-sm text-green-400 my-8 shadow-sm">

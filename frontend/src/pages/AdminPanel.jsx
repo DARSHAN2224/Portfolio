@@ -1416,7 +1416,7 @@ const DesktopContentForm = () => {
                         <label className="block text-xs text-gray-400 mb-2">Full Name (Display)</label>
                         <input
                             className="w-full bg-[#222] border border-[#333] rounded p-3 text-white"
-                            placeholder="DARSHAN PATEL"
+                            placeholder="DARSHAN P"
                             value={profile?.name || ''}
                             onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                         />

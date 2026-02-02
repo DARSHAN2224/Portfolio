@@ -135,7 +135,7 @@ const Desktop = ({ chatHistory, setChatHistory }) => {
                                     <img src={profile?.avatar || "https://lh3.googleusercontent.com/aida-public/AB6AXuCwZOJVkZU2KW4RX0c5lPzSF_jQdc3jheBDtr8sDtWW9jndD7JINNq-vAt0sDbxFq3WvqkVM5_MAwDWekGQZ0VuGW4ZDQacMeUJFBj2wdjX964ePuvsVr5mDMm9vznWS45LEt2QeqGSzZhg0_cpZJTNJNKyPkuFI-xyKFnCfG8mGz-9CJ7kEs9PBdz-bVn8ZLQP9ea5w4R1X0hi7DWxJIdE7TEF2gerwet_aG3jvA_XPRGjcxvsI0fJwhMzd3z1iVNgaf83dflSo0I"} alt="User" className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-500" />
                                 </div>
 
-                                <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">{profile?.name?.toUpperCase() || 'DARSHAN PATEL'}</h1>
+                                <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">{profile?.name?.toUpperCase() || 'DARSHAN P'}</h1>
                                 <div className="flex items-center gap-2 text-primary text-xs tracking-[0.2em] uppercase mb-6 bg-primary/10 px-3 py-1 rounded min-h-[28px]">
                                     <span className="w-1.5 h-1.5 bg-primary rounded-full animate-blink"></span>
                                     <TypingText texts={roles} speed={100} pause={2000} />
