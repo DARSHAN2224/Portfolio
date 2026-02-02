@@ -10,6 +10,10 @@ router.get('/config/:key', async (req, res) => {
     try {
         const config = await SystemConfig.findOne({ key: req.params.key });
         if (!config) {
+            // Default Fallback
+            if (req.params.key === 'user_roles') {
+                return res.json({ key: 'user_roles', value: ['Full Stack Engineer', 'AI Researcher', 'System Architect'] });
+            }
             return res.status(404).json({ error: 'Config not found' });
         }
         res.json(config);

@@ -58,7 +58,18 @@ app.get('/api/profile', async (req, res) => {
   try {
     const Profile = require('./models/Profile');
     const profile = await Profile.findOne();
-    res.json(profile);
+
+    // Default Fallback if DB is empty
+    const defaultProfile = {
+      name: "Darshan P",
+      title: "Full Stack Engineer",
+      email: "pdarshan2224@gmail.com",
+      bio: "Full Stack Engineer with 2+ years of experience in building scalable web applications and AI-powered solutions. Proficient in the MERN stack (MongoDB, Express, React, Node.js), Next.js, and Python. Passionate about solving real-world problems through code.",
+      location: "Hyderabad, Telangana",
+      systemStatus: "OPTIMAL"
+    };
+
+    res.json(profile || defaultProfile);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
