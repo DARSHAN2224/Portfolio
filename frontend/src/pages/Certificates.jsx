@@ -10,7 +10,7 @@ const Certificates = ({ chatHistory, setChatHistory }) => {
     useEffect(() => {
         const fetchCerts = async () => {
             try {
-                const res = await fetch('http://localhost:5000/api/certificates');
+                const res = await fetch('/api/certificates');
                 const data = await res.json();
                 setCerts(data);
             } catch (err) {

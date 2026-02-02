@@ -23,7 +23,7 @@ const ProjectsForm = () => {
     }, []);
 
     const fetchProjects = () => {
-        fetch('http://localhost:5000/api/projects')
+        fetch('/api/projects')
             .then(res => res.json())
             .then(data => {
                 setProjects(data);
@@ -44,7 +44,7 @@ const ProjectsForm = () => {
         formData.append('image', file);
 
         try {
-            const res = await fetch('http://localhost:5000/api/upload', {
+            const res = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData
             });
@@ -72,8 +72,8 @@ const ProjectsForm = () => {
         };
 
         const url = editingId
-            ? `http://localhost:5000/api/projects/${editingId}`
-            : 'http://localhost:5000/api/projects';
+            ? `/api/projects/${editingId}`
+            : '/api/projects';
 
         const method = editingId ? 'PUT' : 'POST';
 
@@ -109,7 +109,7 @@ const ProjectsForm = () => {
     const handleDelete = (id) => {
         if (!confirm('Delete this project?')) return;
 
-        fetch(`http://localhost:5000/api/projects/${id}`, {
+        fetch(`/api/projects/${id}`, {
             method: 'DELETE'
         })
             .then(() => fetchProjects())

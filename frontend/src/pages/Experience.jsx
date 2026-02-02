@@ -10,7 +10,7 @@ const Experience = ({ chatHistory, setChatHistory }) => {
     useEffect(() => {
         const fetchExperience = async () => {
             try {
-                const res = await fetch('http://localhost:5000/api/experience');
+                const res = await fetch('/api/experience');
                 if (!res.ok) throw new Error('Failed to fetch');
                 const data = await res.json();
 

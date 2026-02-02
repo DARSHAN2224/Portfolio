@@ -102,7 +102,7 @@ const ProfileForm = () => {
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/profile')
+        fetch('/api/profile')
             .then(res => res.json())
             .then(data => {
                 setProfile(data || {});
@@ -116,7 +116,7 @@ const ProfileForm = () => {
 
     const handleSave = () => {
         setSaving(true);
-        fetch('http://localhost:5000/api/profile', {
+        fetch('/api/profile', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(profile)
@@ -253,7 +253,7 @@ const ExperienceForm = () => {
     }, []);
 
     const fetchExperiences = () => {
-        fetch('http://localhost:5000/api/experience')
+        fetch('/api/experience')
             .then(res => res.json())
             .then(data => {
                 setExperiences(data);
@@ -272,8 +272,8 @@ const ExperienceForm = () => {
         }
 
         const url = editingId
-            ? `http://localhost:5000/api/experience/${editingId}`
-            : 'http://localhost:5000/api/experience';
+            ? `/api/experience/${editingId}`
+            : '/api/experience';
 
         const method = editingId ? 'PUT' : 'POST';
 
@@ -310,7 +310,7 @@ const ExperienceForm = () => {
     const handleDelete = (id) => {
         if (!confirm('Delete this experience?')) return;
 
-        fetch(`http://localhost:5000/api/experience/${id}`, {
+        fetch(`/api/experience/${id}`, {
             method: 'DELETE'
         })
             .then(() => fetchExperiences())
@@ -410,7 +410,7 @@ const SkillsForm = () => {
     }, []);
 
     const fetchSkills = () => {
-        fetch('http://localhost:5000/api/skills')
+        fetch('/api/skills')
             .then(res => res.json())
             .then(data => {
                 setSkills(data);
@@ -429,8 +429,8 @@ const SkillsForm = () => {
         }
 
         const url = editingId
-            ? `http://localhost:5000/api/skills/${editingId}`
-            : 'http://localhost:5000/api/skills';
+            ? `/api/skills/${editingId}`
+            : '/api/skills';
 
         const method = editingId ? 'PUT' : 'POST';
 
@@ -468,7 +468,7 @@ const SkillsForm = () => {
     const handleDelete = (id) => {
         if (!confirm('Delete this skill?')) return;
 
-        fetch(`http://localhost:5000/api/skills/${id}`, {
+        fetch(`/api/skills/${id}`, {
             method: 'DELETE'
         })
             .then(() => fetchSkills())
@@ -571,7 +571,7 @@ const BlogForm = () => {
     }, []);
 
     const fetchBlogs = () => {
-        fetch('http://localhost:5000/api/blogs')
+        fetch('/api/blogs')
             .then(res => res.json())
             .then(data => {
                 setBlogs(data);
@@ -594,7 +594,7 @@ const BlogForm = () => {
             tags: newBlog.tags.split(',').map(t => t.trim()).filter(t => t)
         };
 
-        fetch('http://localhost:5000/api/blogs', {
+        fetch('/api/blogs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(blogData)
@@ -610,7 +610,7 @@ const BlogForm = () => {
     const handleDelete = (id) => {
         if (!confirm('Delete this blog post?')) return;
 
-        fetch(`http://localhost:5000/api/blogs/${id}`, {
+        fetch(`/api/blogs/${id}`, {
             method: 'DELETE'
         })
             .then(() => fetchBlogs())
@@ -790,7 +790,7 @@ const CertificatesForm = () => {
     }, []);
 
     const fetchCertificates = () => {
-        fetch('http://localhost:5000/api/certificates')
+        fetch('/api/certificates')
             .then(res => res.json())
             .then(data => {
                 setCertificates(data);
@@ -808,7 +808,7 @@ const CertificatesForm = () => {
             return;
         }
 
-        fetch('http://localhost:5000/api/certificates', {
+        fetch('/api/certificates', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newCert)
@@ -824,7 +824,7 @@ const CertificatesForm = () => {
     const handleDelete = (id) => {
         if (!confirm('Delete this certificate?')) return;
 
-        fetch(`http://localhost:5000/api/certificates/${id}`, {
+        fetch(`/api/certificates/${id}`, {
             method: 'DELETE'
         })
             .then(() => fetchCertificates())
@@ -940,7 +940,7 @@ const ProjectsForm = () => {
     }, []);
 
     const fetchProjects = () => {
-        fetch('http://localhost:5000/api/projects')
+        fetch('/api/projects')
             .then(res => res.json())
             .then(data => {
                 setProjects(data);
@@ -961,7 +961,7 @@ const ProjectsForm = () => {
         formData.append('image', file);
 
         try {
-            const res = await fetch('http://localhost:5000/api/upload', {
+            const res = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData
             });
@@ -989,8 +989,8 @@ const ProjectsForm = () => {
         };
 
         const url = editingId
-            ? `http://localhost:5000/api/projects/${editingId}`
-            : 'http://localhost:5000/api/projects';
+            ? `/api/projects/${editingId}`
+            : '/api/projects';
 
         const method = editingId ? 'PUT' : 'POST';
 
@@ -1041,7 +1041,7 @@ const ProjectsForm = () => {
     const handleDelete = (id) => {
         if (!confirm('Delete this project?')) return;
 
-        fetch(`http://localhost:5000/api/projects/${id}`, {
+        fetch(`/api/projects/${id}`, {
             method: 'DELETE'
         })
             .then(() => fetchProjects())
@@ -1226,7 +1226,7 @@ const NetworkForm = () => {
     }, []);
 
     const fetchLinks = () => {
-        fetch('http://localhost:5000/api/social-links')
+        fetch('/api/social-links')
             .then(res => res.json())
             .then(data => {
                 setLinks(data);
@@ -1244,7 +1244,7 @@ const NetworkForm = () => {
             return;
         }
 
-        fetch('http://localhost:5000/api/social-links', {
+        fetch('/api/social-links', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newLink)
@@ -1260,7 +1260,7 @@ const NetworkForm = () => {
     const handleDelete = (id) => {
         if (!confirm('Delete this link?')) return;
 
-        fetch(`http://localhost:5000/api/social-links/${id}`, {
+        fetch(`/api/social-links/${id}`, {
             method: 'DELETE'
         })
             .then(() => fetchLinks())
@@ -1371,7 +1371,7 @@ const DesktopContentForm = () => {
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/profile')
+        fetch('/api/profile')
             .then(res => res.json())
             .then(data => {
                 setProfile(data || {});
@@ -1385,7 +1385,7 @@ const DesktopContentForm = () => {
 
     const handleSave = () => {
         setSaving(true);
-        fetch('http://localhost:5000/api/profile', {
+        fetch('/api/profile', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(profile)
@@ -1500,7 +1500,7 @@ const AboutForm = () => {
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/profile')
+        fetch('/api/profile')
             .then(res => res.json())
             .then(data => {
                 setProfile(data || {});
@@ -1514,7 +1514,7 @@ const AboutForm = () => {
 
     const handleSave = () => {
         setSaving(true);
-        fetch('http://localhost:5000/api/profile', {
+        fetch('/api/profile', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(profile)
