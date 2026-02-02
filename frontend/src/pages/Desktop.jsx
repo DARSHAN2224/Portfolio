@@ -152,7 +152,7 @@ const Desktop = ({ chatHistory, setChatHistory }) => {
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <span className="text-slate-500 font-bold">SYSTEM</span>
-                                        <span>{profile?.systemDescription || 'DarshanOS v2.4'}</span>
+                                        <span className="text-[10px] leading-tight line-clamp-3">{profile?.systemDescription || 'DarshanOS v2.4'}</span>
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <span className="text-slate-500 font-bold">UPTIME</span>
