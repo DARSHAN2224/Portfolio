@@ -62,30 +62,37 @@
 ## 📂 Project Structure
 
 ```
-portfolio/
-├── frontend/               # React application
-│   ├── src/
-│   │   ├── components/    # Reusable components (CopilotWidget, etc.)
-│   │   ├── pages/         # Route pages (Desktop, Projects, About, etc.)
-│   │   ├── stores/        # Zustand state management
-│   │   └── services/      # API integration
-│   └── public/            # Static assets
-├── backend/               # Node.js server
-│   ├── models/           # MongoDB schemas
-│   ├── routes/           # API endpoints
-│   ├── controllers/      # Business logic
-│   ├── services/         # AI and email services
-│   └── seed.js           # Database seeding script
-└── docs/                 # Documentation
+Portfolio/
+├── nextapp/                    # Unified Next.js 14 App Router Application
+│   ├── app/
+│   │   ├── page.jsx            # Desktop OS interface (Darshan-OS 4.0)
+│   │   ├── layout.jsx          # Root Layout & metadata
+│   │   ├── admin/              # Admin login & passkey verification
+│   │   │   └── dashboard/      # Admin content management dashboard
+│   │   └── api/                # Production Next.js API Routes
+│   │       ├── chat/ask/       # Groq LLM context-aware Copilot endpoint
+│   │       ├── contact/        # Email contact handler (Nodemailer)
+│   │       ├── projects/       # Projects data endpoint
+│   │       ├── skills/         # Skills data endpoint
+│   │       ├── experience/     # Experience data endpoint
+│   │       ├── profile/        # Profile data endpoint
+│   │       └── health/         # System uptime & healthcheck
+│   ├── lib/
+│   │   ├── db.js               # MongoDB connection manager
+│   │   └── models/             # Mongoose schemas (Profile, Project, Skill, Experience, Message)
+│   └── public/                 # Static assets, styles.css, script.js
+├── render.yaml                 # Render Blueprint deployment configuration
+├── vercel.json                 # Vercel deployment configuration
+├── .env.example                # Sample environment variables
+└── package.json                # Root proxy scripts (npm run dev / build / start)
 ```
 
 ## 🛠️ Setup & Installation
 
 ### Prerequisites
-- Node.js v20+ 
-- MongoDB (local or Atlas)
-- Gmail account (for contact form)
-- Google Gemini API key (for AI features)
+- Node.js v18.17+ or v20+
+- MongoDB (local or MongoDB Atlas)
+- Groq API Key (for context-aware AI Copilot)
 
 ### Installation Steps
 
@@ -97,39 +104,27 @@ portfolio/
 
 2. **Install dependencies**
    ```bash
-   # Install root dependencies
-   npm install
-
-   # Install frontend dependencies
-   cd frontend
-   npm install
-
-   # Install backend dependencies
-   cd ../backend
    npm install
    ```
 
 3. **Configure environment variables**
    
-   Create `.env` file in `backend/` directory:
-   ```env
-   # MongoDB
-   MONGO_URI=your_mongodb_connection_string
+   Copy `.env.example` to `.env` (and `nextapp/.env`):
+   ```bash
+   cp .env.example .env
+   ```
+   Add your `GROQ_API_KEY`, `MONGODB_URI`, and email credentials.
 
-   # Email (Gmail SMTP)
-   EMAIL_USER=your_gmail@gmail.com
-   EMAIL_PASS=your_app_specific_password
+4. **Run Development Server**
+   ```bash
+   npm run dev
+   ```
+   Visit `http://localhost:3000`.
 
-   # Google Gemini AI
-   GEMINI_API_KEY=your_gemini_api_key
-
-   # Server
-   PORT=5000
-   NODE_ENV=development
-
-   # Admin (for first-time setup)
-   ADMIN_EMAIL=admin@example.com
-   ADMIN_PASSWORD=secure_password
+5. **Build & Run Production Server**
+   ```bash
+   npm run build
+   npm start
    ```
 
 4. **Seed the database**

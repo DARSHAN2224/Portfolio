@@ -1,60 +1,31 @@
-# Render Deployment Configuration
+# Render Deployment Configuration for Next.js Unified Architecture
 # https://render.com/docs/blueprint-spec
 
 services:
-  # Backend API Service
+  # Unified Next.js Web Service (Frontend + API Routes)
   - type: web
-    name: darshan-os-backend
+    name: darshan-portfolio
     env: node
     region: oregon
     plan: free
     branch: main
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && npm start
-    healthCheckPath: /health
+    buildCommand: npm install --prefix nextapp && npm --prefix nextapp run build
+    startCommand: npm --prefix nextapp start
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
+      - key: GROQ_API_KEY
+        sync: false
       - key: MONGODB_URI
         sync: false
       - key: JWT_SECRET
         generateValue: true
-      - key: CORS_ORIGIN
+      - key: ADMIN_PASSKEY
         sync: false
-      - key: LLAMA_API_URL
-        value: https://api-inference.huggingface.co/models/meta-llama/Llama-2-7b-chat-hf
-      - key: LLAMA_MODEL
-        value: meta-llama/Llama-2-7b-chat-hf
-      - key: LLAMA_API_KEY
+      - key: CONTACT_EMAIL
         sync: false
-      - key: LLAMA_PROVIDER
-        value: huggingface
-
-  # Frontend Static Site
-  - type: web
-    name: darshan-os-frontend
-    env: static
-    region: oregon
-    plan: free
-    branch: main
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: ./frontend/dist
-    pullRequestPreviewsEnabled: true
-    headers:
-      - path: /*
-        name: X-Frame-Options
-        value: SAMEORIGIN
-      - path: /*
-        name: X-Content-Type-Options
-        value: nosniff
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_BASE_URL
+      - key: CONTACT_EMAIL_PASS
         sync: false
-      - key: VITE_ENV
-        value: production

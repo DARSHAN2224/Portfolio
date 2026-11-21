@@ -1,17 +1,16 @@
 {
-  "name": "darshan-os",
+  "name": "darshan-portfolio",
   "version": "1.0.0",
-  "description": "DARSHAN-OS: Autonomous Engineer Command Center - Production-grade MERN stack application",
   "private": true,
-  "scripts": {
-    "dev": "concurrently \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
-    "build": "npm --prefix backend run build && npm --prefix frontend run build",
-    "start:backend": "npm --prefix backend start",
-    "start:frontend": "npm --prefix frontend start",
-    "test": "npm --prefix backend test && npm --prefix frontend test",
-    "lint": "npm --prefix backend lint && npm --prefix frontend lint"
+  "description": "Darshan P Portfolio - Darshan-OS 4.0 Unified Next.js",
+  "engines": {
+    "node": ">=18.17.0"
   },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
+  "scripts": {
+    "postinstall": "npm --prefix nextapp install",
+    "dev": "npm --prefix nextapp run dev",
+    "build": "npm --prefix nextapp run build",
+    "start": "npm --prefix nextapp start",
+    "lint": "npm --prefix nextapp run lint"
   }
 }
