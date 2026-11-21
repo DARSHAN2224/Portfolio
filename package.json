@@ -4,7 +4,7 @@
   "private": true,
   "description": "Darshan P Portfolio - Darshan-OS 4.0 Unified Next.js",
   "engines": {
-    "node": ">=18.17.0"
+    "node": "20.x"
   },
   "scripts": {
     "postinstall": "npm --prefix nextapp install",
@@ -12,5 +12,10 @@
     "build": "npm --prefix nextapp run build",
     "start": "npm --prefix nextapp start",
     "lint": "npm --prefix nextapp run lint"
+  },
+  "dependencies": {
+    "next": "^14.2.23",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }

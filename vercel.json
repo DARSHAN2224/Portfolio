@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "installCommand": "npm --prefix nextapp install",
-  "buildCommand": "npm --prefix nextapp run build",
+  "installCommand": "npm install && npm --prefix nextapp install",
+  "buildCommand": "cd nextapp && npm run build",
   "outputDirectory": "nextapp/.next"
 }
