@@ -4,7 +4,7 @@
   "private": true,
   "description": "Darshan P Portfolio - Darshan-OS 4.0 Unified Next.js",
   "engines": {
-    "node": "20.x"
+    "node": "26.x"
   },
   "scripts": {
     "postinstall": "npm --prefix nextapp install",
